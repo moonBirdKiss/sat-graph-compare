@@ -13,7 +13,7 @@ class Constellation:
 
     # this method will return a matrix which reflect the connectivity of
     # certain timestamp, and timestamp is utc object
-    def satellite_graph(self, timestamp):
+    def sat_graph(self, timestamp):
         res = []
         for i, sat in enumerate(self.sats):
             node_connectivity = []
@@ -30,24 +30,36 @@ class Constellation:
             res.append(node_connectivity)
         return res
 
+    def sat_connectivity(self, timestamp):
+        res = self.sat_graph(timestamp)
+        for i in range(len(res)):
+            for j in range(len(res[i])):
+                if res[i][j] > 0:
+                    res[i][j] = 1
+                else:
+                    res[i][j] = 0
+        return res
 
-if __name__ == "__main__":
-    stations_url = "/Users/dengquanfeng/files/project/spaceGround/INFOCOM/image/python/LEO-tools/LEODistance/station.txt"
+
+def new_sats():
+    stations_url = config.sat_TLE_path
     satellites = skyfield.api.load.tle_file(stations_url)
     by_number = {
         sat.model.satnum: sat for sat in satellites[:config.Constellation_scale]
     }
     logger.debug(by_number)
-
     sats = []
     for k, v in by_number.items():
         sats.append(Satellite(k, v))
-
     c = Constellation(sats)
+    return c
 
+
+if __name__ == "__main__":
+    c = new_sats()
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 29)
 
-    graph = c.satellite_graph(dt)
+    graph = c.sat_graph(dt)
     logger.info(graph)
     plot.visulizeGraph(graph)
