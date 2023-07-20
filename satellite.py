@@ -1,11 +1,19 @@
 from skyfield.api import load, wgs84, utc
 from datetime import datetime
 from math import *
-import time
+import sys
 import math
 import numpy as np
+from loguru import logger
 
+# init logger
+logger.remove()
+logger.add(
+    sys.stdout,
+    level='INFO'
+)
 
+# init constant
 # Limit communication distance of laser communication: 65,000 km
 LCTRange_m = 65 * 100 * 1000
 radius_of_equator_m = 6378140  # 6356755m
@@ -62,52 +70,21 @@ class Satellite:
     # print the infomation of the satellite at a certain time
     def info(self, timestamp):
         self.update_pos(timestamp)
-        print(
+        logger.info(
             f"Satellite number: {self.number}, self.lat: {self.lat}, self.lon: {self.lon}, self.height: {self.height}"
         )
-    # Return the position of the satellite at a certain time (ground projection point)
-    # timestamp: unix timestamp
-
-    # def NE_subpoint_at_time(self, timestamp):
-    #     ts = load.timescale()
-    #     date = datetime.fromtimestamp(int(timestamp))
-    #     date = date.replace(tzinfo=utc)
-    #     t = ts.from_datetime(date)
-    #     geocentric = self.satellite.at(t)
-    #     sp = wgs84.subpoint_of(geocentric)
-
-    #     # WGS84 latitude +47.7833 N longitude -3.5590 E elevation 0.0 m
-    #     latitude = float(str(sp).split(" ")[2])  # latitude N
-    #     longitude = float(str(sp).split(" ")[5])  # longitude E
-
-    #     point = Point(lat=latitude, lon=longitude)
-    #     return point
-
-    def NE_subpoint_at_time_bad(self, timestamp):
-        ts = load.timescale()
-        date = datetime.fromtimestamp(int(timestamp))
-        date = date.replace(tzinfo=utc)
-        t = ts.from_datetime(date)
-        geocentric = self.satellite.at(t)
-        sp = wgs84.subpoint(geocentric)
-
-        # WGS84 latitude +47.7833 N longitude -3.5590 E elevation 0.0 m
-        latitude = sp.latitude.degrees  # latitude N
-        longitude = sp.longitude.degrees  # longitude E
-
-        point = Point(lat=latitude, lon=longitude)
-        return point
 
     # timestamp is a utc object
     # ts = load.timescale()
     # timestamp = ts.utc(2023, 7, 20, 12, 20, 29)
+
     def point_project_at_ground(self, timestamp):
         geocentric = self.satellite.at(timestamp)
         sp = wgs84.subpoint(geocentric)
         height = wgs84.height_of(geocentric).km
-        print('Latitude:', sp.latitude.degrees)
-        print('Longitude:', sp.longitude.degrees)
-        print('height: ', height)
+        logger.debug(f'Latitude: {sp.latitude.degrees}')
+        logger.debug(f'Longitude: {sp.longitude.degrees}')
+        logger.debug(f'height: {height}')
         return sp.latitude.degrees, sp.longitude.degrees, height
 
     # Return the distance from the satellite position at a certain time (ground projection point)
@@ -118,18 +95,8 @@ class Satellite:
         distance = my_point.cal_distance_to_point(point)
         return distance
 
-    # Return the height of the satellite to the ground at a certain time, km
-    def get_height(self, timestamp):
-        ts = load.timescale()
-        date = datetime.fromtimestamp(int(timestamp))
-        date = date.replace(tzinfo=utc)
-
-        t = ts.from_datetime(date)
-        geocentric = self.satellite.at(t)
-        height = wgs84.height_of(geocentric)
-        return float(height.km)
-
     # Return the angle and distance between the satellite's position at a certain time and a certain point on the ground
+
     def get_relative_point_to_ground_point(self, timestamp, point):
         ts = load.timescale()
         date = datetime.fromtimestamp(int(timestamp))
@@ -147,10 +114,10 @@ class Satellite:
 
     # update position
     def update_pos(self, timestamp):
-        p = self.NE_subpoint_at_time(timestamp)
-        self.lat = p.lat
-        self.lon = p.lon
-        self.height = self.get_height(timestamp)
+        lat, lon, height = self.point_project_at_ground(timestamp)
+        self.lat = lat
+        self.lon = lon
+        self.height = height
 
     # Obtain the straight-line distance to another satellite
     # and judge whether the two satellites can communicate directly
@@ -161,6 +128,7 @@ class Satellite:
 
         p1 = Point(self.lat, self.lon)
         p2 = Point(anotherSat.lat, anotherSat.lon)
+
         p1_h = self.height
         p2_h = anotherSat.height
 
@@ -188,13 +156,13 @@ class Satellite:
 
         height_of_line_km = (p1_h * p2_h * math.sin(rad)) / dis_km
         if dis_km > LCTRange_m / 1000:
-            print(
+            logger.debug(
                 f"{self.number} and {anotherSat.number}: The distance is too far to communicate directly"
             )
             ifreachable = False
 
         if height_of_line_km < radius_of_earth_m / 1000 + height_of_atmosphere_m / 1000:
-            print(
+            logger.debug(
                 f"{self.number} and {anotherSat.number}: The atomsphere is too thick to communicate directly"
             )
             ifreachable = False
@@ -208,7 +176,7 @@ if __name__ == "__main__":
     by_number = {
         sat.model.satnum: sat for sat in satellites[:Constellation_scale]
     }
-    print(by_number)
+    logger.debug(by_number)
     s0 = Satellite(44734, by_number[44734])
     s1 = Satellite(44721, by_number[44721])
     s2 = Satellite(44749, by_number[44740])
@@ -218,12 +186,10 @@ if __name__ == "__main__":
     # dt = datetime(2023, 7, 20, 20, 20, 29).timestamp()
     ts = load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 29)
-    # s0.info(dt)
-    s0.point_project_at_ground(dt)
-
-    # s1.info(dt)
-    # s2.info(dt)
-    # s3.info(dt)
-    # print(s0.dis_to_another_sat(s1, dt))
-    # print(s0.dis_to_another_sat(s2, dt))
-    # print(s0.dis_to_another_sat(s3, dt))
+    s0.info(dt)
+    s1.info(dt)
+    s2.info(dt)
+    s3.info(dt)
+    logger.info(s0.dis_to_another_sat(s1, dt))
+    logger.info(s0.dis_to_another_sat(s2, dt))
+    logger.info(s0.dis_to_another_sat(s3, dt))
