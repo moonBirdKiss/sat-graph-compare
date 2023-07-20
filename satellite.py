@@ -1,26 +1,11 @@
 from skyfield.api import load, wgs84, utc
 from datetime import datetime
 from math import *
-import sys
 import math
-import numpy as np
 from loguru import logger
 
-# init logger
-logger.remove()
-logger.add(
-    sys.stdout,
-    level='INFO'
-)
-
-# init constant
-# Limit communication distance of laser communication: 65,000 km
-LCTRange_m = 65 * 100 * 1000
-radius_of_equator_m = 6378140  # 6356755m
-radius_of_polar_m = 6356755  # 6356755m
-Constellation_scale = 10  # size of constellation
-radius_of_earth_m = 6371 * 1000  # radius of earth: m
-height_of_atmosphere_m = 50 * 1000  # height of atmosphere: m
+import config
+from config import logger
 
 
 class Point:
@@ -39,8 +24,8 @@ class Point:
         latB = point.lat
         lonB = point.lon
 
-        ra = radius_of_equator_m              # radius of equator: meter
-        rb = radius_of_polar_m              # radius of polar: meter
+        ra = config.radius_of_equator_m              # radius of equator: meter
+        rb = config.radius_of_polar_m              # radius of polar: meter
         flatten = (ra - rb) / ra  # Partial rate of the earth
         # change angle to radians
         radLatA = radians(latA)
@@ -132,15 +117,15 @@ class Satellite:
         p1_h = self.height
         p2_h = anotherSat.height
 
-        p1_h += radius_of_earth_m / 1000
-        p2_h += radius_of_earth_m / 1000
+        p1_h += config.radius_of_earth_m / 1000
+        p2_h += config.radius_of_earth_m / 1000
 
         # Get the ground distance (meters) between two points
         p2pdist_ground = p1.cal_distance_to_point(p2)
 
         # The angle between two points relative to the center of the earth
         # the radius of the earth is 6371000
-        rad = p2pdist_ground / radius_of_earth_m
+        rad = p2pdist_ground / config.radius_of_earth_m
         if rad > math.pi:
             rad = 2 * math.pi - rad
 
@@ -155,13 +140,13 @@ class Satellite:
         ifreachable = True
 
         height_of_line_km = (p1_h * p2_h * math.sin(rad)) / dis_km
-        if dis_km > LCTRange_m / 1000:
+        if dis_km > config.LCTRange_m / 1000:
             logger.debug(
                 f"{self.number} and {anotherSat.number}: The distance is too far to communicate directly"
             )
             ifreachable = False
 
-        if height_of_line_km < radius_of_earth_m / 1000 + height_of_atmosphere_m / 1000:
+        if height_of_line_km < config.radius_of_earth_m / 1000 + config.height_of_atmosphere_m / 1000:
             logger.debug(
                 f"{self.number} and {anotherSat.number}: The atomsphere is too thick to communicate directly"
             )
@@ -174,7 +159,7 @@ if __name__ == "__main__":
     stations_url = "./station.txt"
     satellites = load.tle_file(stations_url)
     by_number = {
-        sat.model.satnum: sat for sat in satellites[:Constellation_scale]
+        sat.model.satnum: sat for sat in satellites[:config.Constellation_scale]
     }
     logger.debug(by_number)
     s0 = Satellite(44734, by_number[44734])
