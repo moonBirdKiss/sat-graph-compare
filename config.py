@@ -24,7 +24,8 @@ height_of_atmosphere_m = 50 * 1000  # height of atmosphere: m
 
 
 # config the graph similarity
-iteration_time = 120 # 20 time
-time_scale = 60 # 1min per time
+iteration_time = 120  # 20 time
+time_scale = 60  # 1min per time
 
-sat_TLE_path = "/home/yqwang/Documents/sat-graph-compare/station.txt"
+sat_TLE_path = "/Users/dengquanfeng/files/project/spaceGround/INFOCOM/image/python/LEO-tools/sat-graph-compare/station.txt"
+res_path = "/Users/dengquanfeng/files/project/spaceGround/INFOCOM/image/python/LEO-tools/sat-graph-compare/res/"
