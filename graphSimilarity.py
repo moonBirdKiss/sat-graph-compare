@@ -5,6 +5,7 @@ import plot
 import skyfield.api
 import constellation
 from config import logger
+import config 
 
 
 def tutorial_grakel():
@@ -81,8 +82,10 @@ def test():
     g1 = c.sat_connectivity(dt)
 
     # 比较 0 - 300 的结果
-    for i in range(60):
-        dt = ts.utc(2023, 7, 20, 12, 20 + i // 60, 29 + i % 60)
+    for i in range(config.iteration_time):
+        # the sacle 
+        j = i * config.time_scale
+        dt = ts.utc(2023, 7, 20, 12, 20 + j // 60, 29 + j % 60)
         g2 = c.sat_connectivity(dt)
         res = sats_grakel(g1, g2)
         # logger.info(f"index:{i}, result: {res} type: {type(res)}")

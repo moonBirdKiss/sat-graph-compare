@@ -55,9 +55,10 @@ class Satellite:
     # print the infomation of the satellite at a certain time
     def info(self, timestamp):
         self.update_pos(timestamp)
-        logger.info(
+        logger.debug(
             f"Satellite number: {self.number}, self.lat: {self.lat}, self.lon: {self.lon}, self.height: {self.height}"
         )
+        return self.lat, self.lon, self.height, self.number
 
     # timestamp is a utc object
     # ts = load.timescale()

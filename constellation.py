@@ -39,13 +39,17 @@ class Constellation:
                 else:
                     res[i][j] = 0
         return res
+    
+    def get_sats(self):
+        return self.sats
 
 
-def new_sats():
+# new_sats() create a constellation, default size is config.Constellation_scale
+def new_sats(size=config.Constellation_scale):
     stations_url = config.sat_TLE_path
     satellites = skyfield.api.load.tle_file(stations_url)
     by_number = {
-        sat.model.satnum: sat for sat in satellites[:config.Constellation_scale]
+        sat.model.satnum: sat for sat in satellites[:size]
     }
     logger.debug(by_number)
     sats = []
