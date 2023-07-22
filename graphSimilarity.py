@@ -84,6 +84,7 @@ def graph_similarity_time_varies(size=config.Constellation_scale, iter_time=conf
     gk_res = []
     # 比较 0 - 300 的结果
     for i in range(iter_time):
+        logger.info(f"{i}, never be annoying")
         # the sacle
         j = i * time_scale
         dt = ts.utc(2023, 7, 20, 12, 20 + j // 60, 29 + j % 60)
@@ -110,5 +111,5 @@ def graph_similartiy_node_varies(size=config.Constellation_scale):
 # 测试
 if __name__ == "__main__":
     logger.info("Staring to test graph similarity")
-    graph_similartiy_node_varies(50)
+    graph_similartiy_node_varies(20)
     logger.info("Test graph similarity finished")
