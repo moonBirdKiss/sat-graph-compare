@@ -1,18 +1,18 @@
-#include <iostream>
-#include <string>
 #include <curl/curl.h>
+#include <iostream>
 #include <jsoncpp/json/json.h>
+#include <string>
 
 class SatCon
 {
-private:
+  private:
     bool flag;
     float distance;
     float latency;
     int src;
     int dst;
 
-public:
+  public:
     void setSatConn(int initsrc, int initdst, bool f, float d, float l)
     {
         src = initsrc;
@@ -23,17 +23,18 @@ public:
     }
     void infoSatConn(void)
     {
-        std::cout << "from Node-" << src << " to Node-" << dst << ", flag: " << flag << ", distance: " << distance << ", latency: " << latency << std::endl;
+        std::cout << "from Node-" << src << " to Node-" << dst << ", flag: " << flag << ", distance: " << distance
+                  << ", latency: " << latency << std::endl;
     }
 };
 
 class SatGraph
 {
-private:
+  private:
     int size;
     SatCon **ptr;
 
-public:
+  public:
     SatGraph(int s)
     {
         size = s;
@@ -99,7 +100,16 @@ int main()
         curl_slist *headers = NULL;
         headers = curl_slist_append(headers, "Content-Type: application/json");
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "{\"node\":3}");
+
+        // modify the args
+        int size = 3;
+        int second = 2;
+
+        std::stringstream ss;
+        ss << "{ \"node\": " << size << ", \"time\": " << second << " }";
+        std::string json = ss.str();
+
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK)
@@ -112,7 +122,8 @@ int main()
             Json::Value jsonData;
             Json::CharReaderBuilder jsonReader;
             const std::unique_ptr<Json::CharReader> reader(jsonReader.newCharReader());
-            bool parsingSuccessful = reader->parse(readBuffer.c_str(), readBuffer.c_str() + readBuffer.length(), &jsonData, &err);
+            bool parsingSuccessful =
+                reader->parse(readBuffer.c_str(), readBuffer.c_str() + readBuffer.length(), &jsonData, &err);
             if (parsingSuccessful)
             {
                 SatGraph *satGraph = new SatGraph(3);
@@ -120,7 +131,8 @@ int main()
                 {
                     for (int j = 0; j < 3; ++j)
                     {
-                        satGraph->GetSatConn(i, j)->setSatConn(i, j, jsonData[i][j][0].asBool(), jsonData[i][j][1].asFloat(), jsonData[i][j][2].asFloat());
+                        satGraph->GetSatConn(i, j)->setSatConn(
+                            i, j, jsonData[i][j][0].asBool(), jsonData[i][j][1].asFloat(), jsonData[i][j][2].asFloat());
                     }
                 }
                 satGraph->SatGraphInfo();
