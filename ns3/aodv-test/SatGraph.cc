@@ -48,7 +48,8 @@ void SatGraph::RecoverLink(int a, int b, ns3::Time t)
 {
     int max_index = a > b ? a : b;
     int min_index = a > b ? b : a;
-    NS_LOG_DEBUG("[SatGraph]: RecoverLink(): Try to recover link: " << min_index << " " << max_index << " " << t);
+    NS_LOG_DEBUG("[SatGraph]: RecoverLink(): Time: " << ns3::Simulator::Now().GetSeconds() << "Try to recover link: "
+                                                     << min_index << " " << max_index << " " << t);
     GetSatConn(min_index, max_index)->Recover(t);
 }
 
@@ -58,4 +59,9 @@ void SatGraph::TearDownLink(int a, int b, ns3::Time t)
     int min_index = a > b ? b : a;
     NS_LOG_DEBUG("[SatGraph]: TearDownLink(): Try to tear down link: " << min_index << " " << max_index << " " << t);
     GetSatConn(min_index, max_index)->TearDown(t);
+}
+
+int SatGraph::GetSize()
+{
+    return size;
 }

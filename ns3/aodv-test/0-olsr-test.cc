@@ -2,20 +2,23 @@
 #include "SatLinks.h"
 #include "ns3/aodv-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/olsr-helper.h"
+#include "utils.h"
 #include <curl/curl.h>
 #include <iostream>
 #include <jsoncpp/json/json.h>
 #include <string>
 #include <vector>
 
-NS_LOG_COMPONENT_DEFINE("AodvStaGraph");
+NS_LOG_COMPONENT_DEFINE("OlsrStaGraph");
 
 using namespace ns3;
 
-size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *s);
-
 const int NodeNum = 3;
-const int SimluationTime = 5;
+const int SimluationTime = 50;
+const int TimeInterval = 10;
+const int StartTime = 3;
+const int EndtTime = 45;
 
 int main(int argc, char *argv[])
 {
@@ -23,10 +26,12 @@ int main(int argc, char *argv[])
     cmd.Parse(argc, argv);
 
     Time::SetResolution(Time::NS);
-    LogComponentEnable("OnOffApplication", LOG_LEVEL_INFO);
+    // LogComponentEnable("OnOffApplication", LOG_LEVEL_INFO);
     LogComponentEnable("PacketSink", LOG_LEVEL_INFO);
-    LogComponentEnable("AodvStaGraph", LOG_LEVEL_ALL);
+    LogComponentEnable("OlsrStaGraph", LOG_LEVEL_ALL);
     LogComponentEnable("SatLink", LOG_LEVEL_ALL);
+    LogComponentEnable("SatGraph", LOG_LEVEL_ALL);
+    // LogComponentEnableAll(LOG_LEVEL_INFO);
 
     NodeContainer nodes;
     nodes.Create(NodeNum);
@@ -65,12 +70,12 @@ int main(int argc, char *argv[])
     NetDeviceContainer devicesforPacketSink = pointToPoint.Install(nodeforPacketSink);
 
     InternetStackHelper stack;
-    AodvHelper aodv;
-    stack.SetRoutingHelper(aodv);
+    AodvHelper olsr;
+    stack.SetRoutingHelper(olsr);
 
     // 此处的nodes应该还要包括off和sink
-    nodes.Add(nodeforOnOff.Get(1));
-    nodes.Add(nodeforPacketSink.Get(1));
+    // nodes.Add(nodeforOnOff.Get(1));
+    // nodes.Add(nodeforPacketSink.Get(1));
 
     stack.Install(nodes);
     stack.Install(nodeforOnOff.Get(1));
@@ -120,25 +125,16 @@ int main(int argc, char *argv[])
     onoff.SetAttribute("StopTime", TimeValue(Seconds(SimluationTime)));
     ApplicationContainer apps_source = onoff.Install(nodeforOnOff.Get(1));
 
+    // 在这个函数这里修改网络的拓扑图
+    changeSats(&satGraph, TimeInterval, StartTime, EndtTime);
+
+    // printRoutingTable(Seconds(25.0), "scratch/2-olsrTest/0-olsr-test-0.routingtable", nodes);
+
+    splitLog(SimluationTime);
+
     Simulator::Stop(Seconds(SimluationTime + 1.0));
     Simulator::Run();
     Simulator::Destroy();
 
     return 0;
 }
-
-size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *s)
-{
-    size_t newLength = size * nmemb;
-    size_t oldLength = s->size();
-    try
-    {
-        s->resize(oldLength + newLength);
-    }
-    catch (std::bad_alloc &e)
-    {
-        return 0;
-    }
-    std::copy((char *)contents, (char *)contents + newLength, s->begin() + oldLength);
-    return size * nmemb;
-};

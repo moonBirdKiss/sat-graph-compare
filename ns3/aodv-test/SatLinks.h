@@ -7,8 +7,8 @@
 #include "ns3/point-to-point-module.h"
 
 const int OffStatus = 0;
-const int ConnectingStatus = 1;
-const int OnStatus = 2;
+const int ConnectingStatus = 2;
+const int OnStatus = 1;
 
 int ifacIndex(int src, int dst);
 
@@ -17,7 +17,7 @@ class SatLink
   private:
     // status: OnStatus, OffStatus, ConnectingStatus
     int status;
-    float distance;
+    float bandwidth;
     float latency;
     ns3::Ptr<ns3::PointToPointChannel> channel;
 
@@ -27,6 +27,8 @@ class SatLink
 
     uint32_t ifceA;
     uint32_t ifceB;
+    void TearDownLink();
+    void RecoverLink();
 
   public:
     SatLink();
@@ -35,10 +37,10 @@ class SatLink
     void Recover(ns3::Time t);
     void Info();
     void SetSatLinkStackInfo(ns3::NetDeviceContainer devAB);
-    ns3::NetDeviceContainer GetNetDeviceContainer();
+    bool UpdaetLinkInfo(int s, float d, float l);
+    int GetStatus();
 
-    void TearDownLink();
-    void RecoverLink();
+    ns3::NetDeviceContainer GetNetDeviceContainer();
 };
 
 #endif // SATELINK

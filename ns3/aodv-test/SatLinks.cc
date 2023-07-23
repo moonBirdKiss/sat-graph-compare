@@ -4,7 +4,7 @@ NS_LOG_COMPONENT_DEFINE("SatLink");
 SatLink::SatLink(int s, float d, float l, ns3::Ptr<ns3::PointToPointChannel> c)
 {
     status = s;
-    distance = d;
+    bandwidth = d;
     latency = l;
     channel = c;
 
@@ -18,20 +18,22 @@ SatLink::SatLink(int s, float d, float l, ns3::Ptr<ns3::PointToPointChannel> c)
 
 SatLink::SatLink()
 {
+    status = OnStatus;
     // NS_LOG_INFO("Hello my bro");
 }
 
 void SatLink::TearDown(ns3::Time downTime)
 {
     NS_LOG_DEBUG("[SatLink]: TearDown(): Try to tear down: node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
-                                                                  << " at " << downTime);
+                                                                  << " at " << downTime.GetSeconds());
     ns3::Simulator::Schedule(downTime, ns3::MakeEvent(&SatLink::TearDownLink, this));
 }
 
 void SatLink::Recover(ns3::Time upTime)
 {
-    NS_LOG_DEBUG("[SatLink]: Recover(): Try to recover: node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
-                                                               << " at " << upTime);
+    NS_LOG_DEBUG("[SatLink]: Recover(): " << ns3::Simulator::Now().GetMilliSeconds() << ", Try to recover: node-"
+                                          << nodeA->GetId() << " and node-" << nodeB->GetId() << " at "
+                                          << upTime.GetMilliSeconds());
     ns3::Simulator::Schedule(upTime, ns3::MakeEvent(&SatLink::RecoverLink, this));
 }
 
@@ -41,7 +43,7 @@ void SatLink::Info()
     ns3::Ptr<ns3::Ipv4> ipb = nodeB->GetObject<ns3::Ipv4>();
     NS_LOG_INFO("[SatLink]: Info(): node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
                                            << " are connect at: " << ipa->GetAddress(1, 0).GetLocal() << " and "
-                                           << ipb->GetAddress(1, 0).GetLocal() << " distance: " << distance
+                                           << ipb->GetAddress(1, 0).GetLocal() << " bandwidth: " << bandwidth
                                            << " latency: " << latency << " status: " << status);
 }
 
@@ -82,7 +84,7 @@ void SatLink::TearDownLink()
     NS_LOG_DEBUG("[SatLink]: TearDownLink(): " << ns3::Simulator::Now().GetSeconds() << " tear down: node-"
                                                << nodeA->GetId() << " at " << ifceA << " and node-" << nodeB->GetId()
                                                << " at " << ifceB);
-
+    status = OffStatus;
     nodeA->GetObject<ns3::Ipv4>()->SetDown(ifceA);
     nodeB->GetObject<ns3::Ipv4>()->SetDown(ifceB);
 }
@@ -112,6 +114,45 @@ void SatLink::RecoverLink()
     {
         NS_LOG_DEBUG("[SatLink]: RecoverLink(): node-" << nodeB->GetId() << " at " << ifceB << " is already up");
     }
+    status = OnStatus;
+}
+
+bool SatLink::UpdaetLinkInfo(int s, float d, float l)
+{
+    bool flag = false;
+    if (status == OnStatus && s == OffStatus)
+    {
+        // if status is from OnSatus -> OffStatus, we need to tear down the link
+        NS_LOG_DEBUG("[SatLink]: UpdaetLinkInfo(): Time: " << ns3::Simulator::Now().GetSeconds() << " node-"
+                                                           << nodeA->GetId() << " and node-" << nodeB->GetId()
+                                                           << " is down at " << ns3::Simulator::Now().GetSeconds());
+        // TearDown(ns3::Simulator::Now());
+        flag = true;
+    }
+    else if (status == OffStatus && s == OnStatus)
+    {
+        // if status is from OffStatus -> OnStatus, we need to recover the link
+        NS_LOG_DEBUG("[SatLink]: UpdaetLinkInfo(): Time: " << ns3::Simulator::Now().GetSeconds() << " node-"
+                                                           << nodeA->GetId() << " and node-" << nodeB->GetId()
+                                                           << " is up at " << ns3::Simulator::Now().GetSeconds());
+        // Recover(ns3::Simulator::Now());
+        flag = true;
+    }
+    else
+    {
+        NS_LOG_DEBUG("[SatLink]: UpdaetLinkInfo(): Time: " << ns3::Simulator::Now().GetSeconds() << " node-"
+                                                           << nodeA->GetId() << " and node-" << nodeB->GetId()
+                                                           << " status is not changed " << status);
+    }
+    status = s;
+    bandwidth = d;
+    latency = l;
+    return flag;
+}
+
+int SatLink::GetStatus()
+{
+    return status;
 }
 
 int ifacIndex(int src, int dst)
