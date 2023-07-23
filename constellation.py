@@ -1,6 +1,6 @@
 from satellite import Satellite
 from config import logger
-import copy
+import model
 import skyfield.api
 import config
 import plot
@@ -40,6 +40,20 @@ class Constellation:
                     res[i][j] = 0
         return res
     
+    def sat_connection(self, timestamp):
+        # this method return [ [(flag, bandwidth, latency), (), ()], 
+        #                      [(), (), ()],
+        #                      [(), (), ()] ]
+        connectivity = self.sat_graph(timestamp)
+        connection = [ [ (False, -1, -1) for _ in range(self.size)] for _ in range(self.size)]
+        for i in range(self.size):
+            for j in range(self.size):
+                if connectivity[i][j] > 0:
+                    connection[i][j] = (True, model.from_dis_to_cbps(connectivity[i][j]),  model.from_dis_to_latency(connectivity[i][j]))
+                else:
+                    connection[i][j] = (False, -1, -1)
+        return connection
+    
     def get_sats(self):
         return self.sats
 
@@ -60,10 +74,21 @@ def new_sats(size=config.Constellation_scale):
 
 
 if __name__ == "__main__":
-    c = new_sats()
+    c = new_sats(5)
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 29)
 
     graph = c.sat_graph(dt)
     logger.info(graph)
-    plot.visulizeGraph(graph)
+    connectivity = c.sat_connectivity(dt)
+    logger.info(connectivity)
+    connection = c.sat_connection(dt)
+    logger.info(connection)
+    
+
+if __name__ == "__main__01":
+    size = 3
+    connection = [ [ (False, -1, -1) for _ in range(size)] for _ in range(size)]
+    connection[0][1] = (True, 100, 100)
+    connection[2][1] = (True, 200, 200)
+    logger.info(connection)
