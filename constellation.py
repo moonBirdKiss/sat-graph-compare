@@ -49,7 +49,7 @@ class Constellation:
         for i in range(self.size):
             for j in range(self.size):
                 if connectivity[i][j] > 0:
-                    connection[i][j] = (True, model.from_dis_to_cbps(connectivity[i][j]),  model.from_dis_to_latency(connectivity[i][j]))
+                    connection[i][j] = (True, model.from_dis_to_cbps(connectivity[i][j] * 1000),  model.from_dis_to_latency(connectivity[i][j] * 1000))
                 else:
                     connection[i][j] = (False, -1, -1)
         return connection

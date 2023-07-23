@@ -31,6 +31,7 @@ def from_dis_to_cbps(dis_m):
 
 def from_dis_to_latency(dis_m):
     latency_ms = dis_m / LightSpeed * 1000 + Constant_latency_ms
+    logger.info(f"Distance: {dis_m}m , latency: {latency_ms}ms")
     return int(latency_ms)
 
 
