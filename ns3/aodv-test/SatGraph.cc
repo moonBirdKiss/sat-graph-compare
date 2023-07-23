@@ -26,7 +26,8 @@ SatLink *SatGraph::GetSatConn(int src, int dst)
 {
     if (dst <= src)
     {
-        NS_LOG_ERROR("dst should be larger than src");
+        NS_LOG_ERROR("[SatGraph]: GetSatConn(): dst should be larger than src, "
+                     << "dst: " << dst << ", src: " << src);
         return nullptr;
     }
     return &ptr[src][dst];
@@ -41,4 +42,20 @@ void SatGraph::SatGraphInfo(void)
             GetSatConn(i, j)->Info();
         }
     }
+}
+
+void SatGraph::RecoverLink(int a, int b, ns3::Time t)
+{
+    int max_index = a > b ? a : b;
+    int min_index = a > b ? b : a;
+    NS_LOG_DEBUG("[SatGraph]: RecoverLink(): Try to recover link: " << min_index << " " << max_index << " " << t);
+    GetSatConn(min_index, max_index)->Recover(t);
+}
+
+void SatGraph::TearDownLink(int a, int b, ns3::Time t)
+{
+    int max_index = a > b ? a : b;
+    int min_index = a > b ? b : a;
+    NS_LOG_DEBUG("[SatGraph]: TearDownLink(): Try to tear down link: " << min_index << " " << max_index << " " << t);
+    GetSatConn(min_index, max_index)->TearDown(t);
 }
