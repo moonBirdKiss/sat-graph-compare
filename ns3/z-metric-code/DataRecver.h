@@ -21,6 +21,7 @@ class DataReceiver : public Application
     virtual void StartApplication(void);
     virtual void StopApplication(void);
     void ReceivePacket(Ptr<Socket> socket);
+    void HandleAccept(Ptr<Socket> s, const Address &from);
 
     u_int64_t m_totBytes;
 

@@ -22,5 +22,5 @@ void compareNode(ns3::Ptr<ns3::Node> nodeA);
 void splitLog(int simluationTime);
 void changeSats(SatGraph *satGraph, int timeInterval, int startTime, int endTime);
 void PrintNodeDetails(Ptr<Node> node);
-
+void SetLoopbackAddressAndRouting(Ptr<Node> node);
 #endif // UTILS

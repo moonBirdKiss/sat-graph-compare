@@ -17,13 +17,15 @@ class SendPktApp : public Application
     void Setup(Ptr<Socket> socket, Address address, uint32_t packetSize = 1024, uint32_t nPackets = 100,
                DataRate dataRate = DataRate("1Mbps"));
     void Setup(Ptr<Node> node, Address sinkAddress, uint32_t packetSize = 1024, uint32_t nPackets = 100,
-               DataRate dataRate = DataRate("1Mbps"));
+               DataRate dataRate = DataRate("32kb/s"));
 
   private:
     virtual void StartApplication(void);
     virtual void StopApplication(void);
     void ScheduleTx(void);
     void SendPacket(void);
+    void ConnectionSucceeded(Ptr<Socket> socket);
+    void ConnectionFailed(Ptr<Socket> socket);
 
     Ptr<Socket> m_socket;
     Address m_peer;

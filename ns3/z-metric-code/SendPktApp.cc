@@ -26,7 +26,7 @@ void SendPktApp::Setup(Ptr<Socket> socket, Address address, uint32_t packetSize,
 
 void SendPktApp::Setup(Ptr<Node> node, Address sinkAddress, uint32_t packetSize, uint32_t nPackets, DataRate dataRate)
 {
-    m_socket = Socket::CreateSocket(node, UdpSocketFactory::GetTypeId());
+    m_socket = Socket::CreateSocket(node, TcpSocketFactory::GetTypeId());
     m_peer = sinkAddress;
     m_packetSize = packetSize;
     m_nPackets = nPackets;
@@ -36,11 +36,16 @@ void SendPktApp::Setup(Ptr<Node> node, Address sinkAddress, uint32_t packetSize,
 
 void SendPktApp::StartApplication(void)
 {
+    NS_LOG_DEBUG("[SendPktApp::StartApplication] at " << Simulator::Now().GetSeconds());
     m_running = true;
     m_packetsSent = 0;
     m_socket->Bind();
     m_socket->Connect(m_peer);
     SendPacket();
+
+    // Add connection successful callback
+    m_socket->SetConnectCallback(MakeCallback(&SendPktApp::ConnectionSucceeded, this),
+                                 MakeCallback(&SendPktApp::ConnectionFailed, this));
 }
 
 void SendPktApp::StopApplication(void)
@@ -79,4 +84,17 @@ void SendPktApp::ScheduleTx(void)
         Time tNext(Seconds(m_packetSize * 8 / static_cast<double>(m_dataRate.GetBitRate())));
         m_sendEvent = Simulator::Schedule(tNext, &SendPktApp::SendPacket, this);
     }
+}
+
+// Add connection successful callback function
+void SendPktApp::ConnectionSucceeded(Ptr<Socket> socket)
+{
+    NS_LOG_DEBUG("[SendPktApp::ConnectionSucceeded] at " << Simulator::Now().GetSeconds());
+    SendPacket();
+}
+
+// Add connection failed callback function
+void SendPktApp::ConnectionFailed(Ptr<Socket> socket)
+{
+    NS_LOG_DEBUG("[SendPktApp::Failer] at " << Simulator::Now().GetSeconds());
 }

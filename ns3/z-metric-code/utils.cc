@@ -1,5 +1,7 @@
 #include "utils.h"
 
+NS_LOG_COMPONENT_DEFINE("Utils");
+
 size_t WriteCallback(void *contents, size_t size, size_t nmemb, std::string *s)
 {
     size_t newLength = size * nmemb;
@@ -124,16 +126,16 @@ void printIpv4Address(NodeContainer c, uint32_t index)
     for (uint32_t i = 0; i < ipv4->GetNInterfaces(); i++)
     {
         Ipv4Address ipAddress = ipv4->GetAddress(i, 0).GetLocal();
-        std::cout << "[printIpv4Address]: Node " << c.Get(index)->GetId() << ", Interface " << i
-                  << ", IP address: " << ipAddress << std::endl;
+        NS_LOG_INFO("[printIpv4Address]: Node " << c.Get(index)->GetId() << ", Interface " << i
+                                                << ", IP address: " << ipAddress);
     }
     return;
 }
 
 void singleSplitLog()
 {
-    std::cout << "Time: " << ns3::Simulator::Now().GetSeconds()
-              << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
+    NS_LOG_INFO("Time: " << ns3::Simulator::Now().GetSeconds()
+                         << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
     return;
 }
 
@@ -157,38 +159,70 @@ void changeSats(SatGraph *satGraph, int timeInterval, int startTime, int endTime
     }
 }
 
+void changeSatsForTest(SatGraph *satGraph, int timeInterval, int startTime, int endTime)
+{
+    satGraph->SatGraphInfo();
+    // 最开始是全连接
+    // 1. 从 10s 开始断掉 0-1 的连接
+    satGraph->TearDownLink(0, 1, Seconds(10.001));
+
+    // 2. 从 20s 开始断掉 0-2 的链接
+    satGraph->TearDownLink(0, 2, Seconds(20.0));
+
+    // 3. 从 30s 开始恢复 0-1 的链接
+    satGraph->RecoverLink(0, 1, Seconds(30.0));
+}
+
 void PrintNodeDetails(Ptr<ns3::Node> node)
 {
     Ptr<ns3::Ipv4> ipv4 = node->GetObject<ns3::Ipv4>(); // 获取节点的IPv4实例
 
     // NS_ASSERT(ipv4 != 0); // 断言ipv4实例是否存在
-    std::cout << "Number: " << ipv4->GetNInterfaces() << std::endl;
+    NS_LOG_INFO("[utils::PrintNodeDetails] The Interface Number: " << ipv4->GetNInterfaces());
     // 遍历所有网络接口
     for (uint32_t i = 0; i < ipv4->GetNInterfaces(); i++)
     {
-        std::cout << "Interface " << i << " status: ";
 
         if (ipv4->IsUp(i)) // 检查接口是否激活
         {
-            std::cout << "up ";
+            NS_LOG_INFO("[utils::PrintNodeDetails] Time: " << Simulator::Now().GetSeconds() << ", Node-"
+                                                           << node->GetId() << "  Interface " << i << " status: up");
         }
         else
         {
-            std::cout << "down ";
+            NS_LOG_INFO("[utils::PrintNodeDetails] Time: " << Simulator::Now().GetSeconds() << ", Node-"
+                                                           << node->GetId() << " Interface " << i << " status: down");
         }
 
         // 遍历此接口上的所有IPv4地址
         for (uint32_t j = 0; j < ipv4->GetNAddresses(i); j++)
         {
             ns3::Ipv4InterfaceAddress addr = ipv4->GetAddress(i, j);
-            std::cout << "Address " << j << ": " << addr.GetLocal() << std::endl;
+            NS_LOG_INFO("[utils::PrintNodeDetails] Address " << j << ": " << addr.GetLocal());
         }
     }
 
     // 打印运行的路由协议
     Ptr<ns3::Ipv4RoutingProtocol> rp = ipv4->GetRoutingProtocol();
-    std::cout << "Routing protocol: " << rp->GetInstanceTypeId() << std::endl;
+    NS_LOG_INFO("[utils::PrintNodeDetails] Time: " << Simulator::Now().GetSeconds() << ", Node-" << node->GetId()
+                                                   << " Routing protocol: " << rp->GetInstanceTypeId());
+}
 
-    // 打印路由表
-    //  ns3::Ipv4RoutingTableEntry::PrintRoutingTable(node);
+// 在指定节点上设置loopback地址和路由
+void SetLoopbackAddressAndRouting(Ptr<Node> node)
+{
+
+    Ptr<ns3::Ipv4> ipv4 = node->GetObject<ns3::Ipv4>();
+
+    // 为 loopback 接口（通常是接口 0）分配并配置 IP 地址
+    int32_t loopbackInterface = 0; // loopback 通常是接口0
+    ns3::Ipv4InterfaceAddress loopbackAddress =
+        ns3::Ipv4InterfaceAddress(ns3::Ipv4Address("127.0.0.1"), ns3::Ipv4Mask("255.0.0.0"));
+    ipv4->AddAddress(loopbackInterface, loopbackAddress);
+    ipv4->SetUp(loopbackInterface); // 确保接口状态为 up
+
+    // 配置 loopback 接口上的静态路由
+    ns3::Ipv4StaticRoutingHelper staticRoutingHelper;
+    Ptr<ns3::Ipv4StaticRouting> staticRouting = staticRoutingHelper.GetStaticRouting(ipv4);
+    staticRouting->AddNetworkRouteTo(ns3::Ipv4Address("127.0.0.0"), ns3::Ipv4Mask("255.0.0.0"), loopbackInterface);
 }

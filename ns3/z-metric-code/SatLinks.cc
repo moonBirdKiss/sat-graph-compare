@@ -1,4 +1,5 @@
 #include "SatLinks.h"
+#include "utils.h"
 
 NS_LOG_COMPONENT_DEFINE("SatLink");
 SatLink::SatLink(int s, float d, float l, ns3::Ptr<ns3::Channel> c)
@@ -81,6 +82,9 @@ ns3::NetDeviceContainer SatLink::GetNetDeviceContainer()
 
 void SatLink::TearDownLink()
 {
+    // 打印此时的状态
+    PrintNodeDetails(nodeA);
+
     NS_LOG_DEBUG("[SatLink]: TearDownLink(): " << ns3::Simulator::Now().GetSeconds() << " tear down: node-"
                                                << nodeA->GetId() << " at " << ifceA << " and node-" << nodeB->GetId()
                                                << " at " << ifceB);
@@ -164,9 +168,8 @@ int SatLink::GetStatus()
 
 void SatLink::SetNewDelay()
 {
-    NS_LOG_DEBUG("[SatLink]: SetNewDelay(): Time: " << ns3::Simulator::Now().GetSeconds() << channel->GetId()
-                                                    << " node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
-                                                    << " set new delay: " << latency);
+    NS_LOG_DEBUG("[SatLink]: SetNewDelay(): Time: " << ns3::Simulator::Now().GetSeconds() << " node-" << nodeA->GetId()
+                                                    << " and node-" << nodeB->GetId() << " set new delay: " << latency);
     channel->SetAttribute("Delay", ns3::TimeValue(ns3::MilliSeconds(int(latency))));
 }
 

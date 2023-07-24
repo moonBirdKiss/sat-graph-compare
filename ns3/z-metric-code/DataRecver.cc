@@ -7,7 +7,7 @@ DataReceiver::DataReceiver(Ptr<Node> node, Ipv4Address address, uint16_t sinkPor
     m_totBytes = 0;
     m_port = sinkPort;
     m_localAddress = InetSocketAddress(address, sinkPort);
-    m_socket = Socket::CreateSocket(node, UdpSocketFactory::GetTypeId());
+    m_socket = Socket::CreateSocket(node, TcpSocketFactory::GetTypeId());
 
     // set the DataReceiver to receive packet
     node->AddApplication(this);
@@ -22,8 +22,18 @@ DataReceiver::~DataReceiver()
 // 会被node自动调用，用来开始操作
 void DataReceiver::StartApplication(void)
 {
+    NS_LOG_DEBUG("[DataReceiver::StartApplication] at " << Simulator::Now().GetSeconds());
     m_socket->Bind(m_localAddress);
-    m_socket->SetRecvCallback(MakeCallback(&DataReceiver::ReceivePacket, this));
+    m_socket->Listen();
+    m_socket->SetAcceptCallback(MakeNullCallback<bool, Ptr<Socket>, const Address &>(),
+                                MakeCallback(&DataReceiver::HandleAccept, this));
+    // m_socket->SetRecvCallback(MakeCallback(&DataReceiver::ReceivePacket, this));
+}
+
+void DataReceiver::HandleAccept(Ptr<Socket> s, const Address &from)
+{
+    NS_LOG_DEBUG("[DataReceiver::HandleAccept] at " << Simulator::Now().GetSeconds());
+    s->SetRecvCallback(MakeCallback(&DataReceiver::ReceivePacket, this));
 }
 
 // 会被node自动调用
