@@ -19,11 +19,12 @@ class SatLink
     int status;
     float bandwidth;
     float latency;
-    ns3::Ptr<ns3::PointToPointChannel> channel;
+    ns3::Ptr<ns3::Channel> channel;
 
     ns3::Ptr<ns3::Node> nodeA;
     ns3::Ptr<ns3::Node> nodeB;
     ns3::NetDeviceContainer deviceAB;
+    void SetNewDelay();
 
     uint32_t ifceA;
     uint32_t ifceB;
@@ -32,7 +33,7 @@ class SatLink
 
   public:
     SatLink();
-    SatLink(int s, float d, float l, ns3::Ptr<ns3::PointToPointChannel> c);
+    SatLink(int s, float d, float l, ns3::Ptr<ns3::Channel> c);
     void TearDown(ns3::Time t);
     void Recover(ns3::Time t);
     void Info();

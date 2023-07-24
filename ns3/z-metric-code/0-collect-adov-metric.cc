@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     // LogComponentEnable("OnOffApplication", LOG_LEVEL_INFO);
     LogComponentEnable("PacketSink", LOG_LEVEL_INFO);
     LogComponentEnable("OlsrStaGraph", LOG_LEVEL_ALL);
-    LogComponentEnable("SatLink", LOG_LEVEL_INFO);
+    LogComponentEnable("SatLink", LOG_LEVEL_DEBUG);
     LogComponentEnable("SatGraph", LOG_LEVEL_INFO);
     LogComponentEnable("DataReceiver", LOG_LEVEL_DEBUG);
     LogComponentEnable("SendPktApp", LOG_LEVEL_DEBUG);
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     nodeforPacketSink.Create(1);
 
     PointToPointHelper pointToPoint;
-    pointToPoint.SetDeviceAttribute("DataRate", StringValue("1Mbps"));
+    pointToPoint.SetDeviceAttribute("DataRate", StringValue("10000Mbps"));
     pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
 
     // construct a satGraph to collect the nodeInfo
@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
 
     // Configure onoff app
     SendPktApp *sendApp = new SendPktApp();
-    sendApp->Setup(nodeforOnOff.Get(1), targetAddress, 1024, 1000, DataRate("1Mbps"));
+    sendApp->Setup(nodeforOnOff.Get(1), targetAddress, 1024, 1000000, DataRate("10Mbps"));
 
     // 在这个函数这里修改网络的拓扑图
-    // changeSats(&satGraph, TimeInterval, StartTime, EndtTime);
+    changeSats(&satGraph, TimeInterval, StartTime, EndtTime);
 
     // printRoutingTable(Seconds(25.0), "scratch/2-olsrTest/0-olsr-test-0.routingtable", nodes);
 

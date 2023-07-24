@@ -1,7 +1,7 @@
 #include "SatLinks.h"
 
 NS_LOG_COMPONENT_DEFINE("SatLink");
-SatLink::SatLink(int s, float d, float l, ns3::Ptr<ns3::PointToPointChannel> c)
+SatLink::SatLink(int s, float d, float l, ns3::Ptr<ns3::Channel> c)
 {
     status = s;
     bandwidth = d;
@@ -69,9 +69,9 @@ void SatLink::SetSatLinkStackInfo(ns3::NetDeviceContainer devAB)
         ifceA = ifacIndex(nodeB->GetId(), nodeA->GetId());
     }
 
-    channel = deviceA->GetObject<ns3::PointToPointChannel>();
+    channel = deviceAB.Get(0)->GetChannel();
     NS_LOG_DEBUG("[SatLink]: node-" << nodeA->GetId() << " at: " << ifceA << " and node-" << nodeB->GetId()
-                                    << " at: " << ifceB);
+                                    << " at: " << ifceB << " are connected at:" << channel->GetId());
 }
 
 ns3::NetDeviceContainer SatLink::GetNetDeviceContainer()
@@ -147,12 +147,27 @@ bool SatLink::UpdateLinkInfo(int s, float d, float l)
     status = s;
     bandwidth = d;
     latency = l;
+
+    // if status == OnStatus, we need to update the bandwidth and latency
+    if (status == OnStatus)
+    {
+        ns3::Simulator::Schedule(ns3::MilliSeconds(1), ns3::MakeEvent(&SatLink::SetNewDelay, this));
+    }
+
     return flag;
 }
 
 int SatLink::GetStatus()
 {
     return status;
+}
+
+void SatLink::SetNewDelay()
+{
+    NS_LOG_DEBUG("[SatLink]: SetNewDelay(): Time: " << ns3::Simulator::Now().GetSeconds() << channel->GetId()
+                                                    << " node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
+                                                    << " set new delay: " << latency);
+    channel->SetAttribute("Delay", ns3::TimeValue(ns3::MilliSeconds(int(latency))));
 }
 
 int ifacIndex(int src, int dst)
