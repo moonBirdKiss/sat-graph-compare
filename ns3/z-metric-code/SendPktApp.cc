@@ -64,7 +64,8 @@ void SendPktApp::StopApplication(void)
 
 void SendPktApp::SendPacket(void)
 {
-    NS_LOG_DEBUG("[SendPktApp::SendPacket] at " << Simulator::Now().GetSeconds());
+    NS_LOG_DEBUG("[SendPktApp::SendPacket] at " << Simulator::Now().GetSeconds() << ", and have sent "
+                                                << m_packetsSent * m_packetSize << " bytes");
     Ptr<Packet> packet = Create<Packet>(m_packetSize);
     TimestampTag timestamp;
     timestamp.SetTimestamp(Simulator::Now());

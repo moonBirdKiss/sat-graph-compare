@@ -169,8 +169,10 @@ int SatLink::GetStatus()
 void SatLink::SetNewDelay()
 {
     NS_LOG_DEBUG("[SatLink]: SetNewDelay(): Time: " << ns3::Simulator::Now().GetSeconds() << " node-" << nodeA->GetId()
-                                                    << " and node-" << nodeB->GetId() << " set new delay: " << latency);
+                                                    << " and node-" << nodeB->GetId() << " set new delay: " << latency
+                                                    << " and set new bandwidth: " << int(bandwidth));
     channel->SetAttribute("Delay", ns3::TimeValue(ns3::MilliSeconds(int(latency))));
+    // channel->SetAttribute("DataRate", ns3::DataRateValue(ns3::DataRate(int(bandwidth))));
 }
 
 int ifacIndex(int src, int dst)

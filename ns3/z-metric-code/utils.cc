@@ -71,11 +71,11 @@ void UpdateSats(SatGraph *satGraph, int certainTime)
                         {
                             if (flag)
                             {
-                                satGraph->RecoverLink(i, j, MilliSeconds(1));
+                                satGraph->RecoverLink(i, j, Seconds(5));
                             }
                             else
                             {
-                                satGraph->TearDownLink(i, j, MilliSeconds(1));
+                                satGraph->TearDownLink(i, j, Seconds(4));
                             }
                         }
                     }

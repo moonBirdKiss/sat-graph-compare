@@ -16,16 +16,18 @@ NS_LOG_COMPONENT_DEFINE("OlsrStaGraph");
 
 using namespace ns3;
 
-const int NodeNum = 25;
-const int SimluationTime = 50;
+const int NodeNum = 50;
+const int SimluationTime = 60 * 60 * 2;
 const int TimeInterval = 10;
-const int StartTime = 3;
-const int EndtTime = 45;
+const int StartTime = 11;
+const int EndtTime = SimluationTime - 50;
+const int SndAppTime = 2;
+const int RecAppTime = 1;
 
 int main(int argc, char *argv[])
 {
 
-    freopen("./scratch/6-collect-aodv-metric/myfile.log", "w", stderr);
+    freopen("./scratch/8-let-any/myfile.log", "w", stderr);
     CommandLine cmd(__FILE__);
     cmd.Parse(argc, argv);
 
@@ -33,12 +35,12 @@ int main(int argc, char *argv[])
     // LogComponentEnable("OnOffApplication", LOG_LEVEL_INFO);
     LogComponentEnable("PacketSink", LOG_LEVEL_INFO);
     LogComponentEnable("OlsrStaGraph", LOG_LEVEL_ALL);
-    LogComponentEnable("SatLink", LOG_LEVEL_DEBUG);
+    // LogComponentEnable("SatLink", LOG_LEVEL_DEBUG);
     LogComponentEnable("SatGraph", LOG_LEVEL_INFO);
     LogComponentEnable("DataReceiver", LOG_LEVEL_DEBUG);
     LogComponentEnable("SendPktApp", LOG_LEVEL_DEBUG);
-    LogComponentEnable("AodvRoutingProtocol", LOG_LEVEL_ALL);
-    LogComponentEnable("Utils", LOG_LEVEL_ALL);
+    // LogComponentEnable("AodvRoutingProtocol", LOG_LEVEL_ALL);
+    // LogComponentEnable("Utils", LOG_LEVEL_ALL);
     // LogComponentEnableAll(LOG_LEVEL_INFO);
 
     NodeContainer nodes;
@@ -123,13 +125,16 @@ int main(int argc, char *argv[])
     // Configure PacketSink
     DataReceiver *dataRecver = new DataReceiver(nodeforPacketSink.Get(1), packSinkIfac.GetAddress(1), port);
     Address targetAddress = dataRecver->GetBindAddress();
+    dataRecver->SetStartTime(Seconds(RecAppTime));
 
     // Configure onoff app
     SendPktApp *sendApp = new SendPktApp();
-    sendApp->Setup(nodeforOnOff.Get(1), targetAddress, 1024, 1000000);
+    sendApp->Setup(nodeforOnOff.Get(1), targetAddress, 1024, 57600000, DataRate("1Mbps"));
+    sendApp->SetStartTime(Seconds(SndAppTime));
 
     // 在这个函数这里修改网络的拓扑图
     changeSats(&satGraph, TimeInterval, StartTime, EndtTime);
+    // changeSatsForTest(&satGraph, TimeInterval, StartTime, EndtTime);
 
     // printRoutingTable(Seconds(25.0), "scratch/2-olsrTest/0-olsr-test-0.routingtable", nodes);
 

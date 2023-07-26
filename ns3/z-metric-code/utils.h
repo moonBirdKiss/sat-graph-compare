@@ -23,4 +23,5 @@ void splitLog(int simluationTime);
 void changeSats(SatGraph *satGraph, int timeInterval, int startTime, int endTime);
 void PrintNodeDetails(Ptr<Node> node);
 void SetLoopbackAddressAndRouting(Ptr<Node> node);
+void changeSatsForTest(SatGraph *satGraph, int timeInterval, int startTime, int endTime);
 #endif // UTILS
