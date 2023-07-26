@@ -37,6 +37,7 @@ void SendPktApp::Setup(Ptr<Node> node, Address sinkAddress, uint32_t packetSize,
 void SendPktApp::StartApplication(void)
 {
     NS_LOG_DEBUG("[SendPktApp::StartApplication] at " << Simulator::Now().GetSeconds());
+
     m_running = true;
     m_packetsSent = 0;
     m_socket->Bind();
@@ -66,6 +67,7 @@ void SendPktApp::SendPacket(void)
 {
     NS_LOG_DEBUG("[SendPktApp::SendPacket] at " << Simulator::Now().GetSeconds() << ", and have sent "
                                                 << m_packetsSent * m_packetSize << " bytes");
+    AppendToFile(Simulator::Now().GetSeconds(), m_packetsSent, m_packetSize, "0-sendPkt.log");
     Ptr<Packet> packet = Create<Packet>(m_packetSize);
     TimestampTag timestamp;
     timestamp.SetTimestamp(Simulator::Now());

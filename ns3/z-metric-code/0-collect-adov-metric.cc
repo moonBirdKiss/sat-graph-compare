@@ -29,7 +29,7 @@ const int RecAppTime = SndAppTime - 10;
 int main(int argc, char *argv[])
 {
 
-    freopen("./scratch/8-let-any/myfile.log", "w", stderr);
+    freopen("./scratch/8-let-any/z-myfile.log", "w", stderr);
     CommandLine cmd(__FILE__);
     cmd.Parse(argc, argv);
 

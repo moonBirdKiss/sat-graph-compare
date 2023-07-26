@@ -6,6 +6,7 @@
 #include "ns3/internet-module.h"
 #include "ns3/network-module.h"
 #include <curl/curl.h>
+#include <fstream>
 #include <iostream>
 #include <jsoncpp/json/json.h>
 #include <string>
@@ -25,4 +26,5 @@ void PrintNodeDetails(Ptr<Node> node);
 void SetLoopbackAddressAndRouting(Ptr<Node> node);
 void changeSatsForTest(SatGraph *satGraph, int timeInterval, int startTime, int endTime);
 void GSUpdateSats(SatGraph *satGraph, int certainTime);
+void AppendToFile(float time, int num1, int num2, const std::string &filename);
 #endif // UTILS

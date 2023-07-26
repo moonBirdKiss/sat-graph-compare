@@ -6,6 +6,7 @@
 #include "ns3/internet-module.h"
 #include "ns3/network-module.h"
 #include "ns3/packet.h"
+#include "utils.h"
 
 using namespace ns3;
 

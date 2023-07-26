@@ -295,3 +295,22 @@ void SetLoopbackAddressAndRouting(Ptr<Node> node)
     Ptr<ns3::Ipv4StaticRouting> staticRouting = staticRoutingHelper.GetStaticRouting(ipv4);
     staticRouting->AddNetworkRouteTo(ns3::Ipv4Address("127.0.0.0"), ns3::Ipv4Mask("255.0.0.0"), loopbackInterface);
 }
+
+void AppendToFile(float time, int num1, int num2, const std::string &filename)
+{
+    // 创建一个文件输出流对象，以追加模式打开文件
+    std::ofstream outfile(filename, std::ios_base::app);
+
+    // 检查文件是否成功打开
+    if (!outfile)
+    {
+        std::cerr << "Failed to open the file " << filename << std::endl;
+        return;
+    }
+
+    // 将整数写入到文件中
+    outfile << time << " " << num1 << " " << num2 << std::endl;
+
+    // 关闭文件
+    outfile.close();
+}
