@@ -56,8 +56,11 @@ class Constellation:
                 if i < self.size and j < self.size:
                     gs_conn[i][j] = sat_conn[i][j]
                 elif i >= self.size and j >= self.size:
-                    # ground station can communicate
-                    gs_conn[i][j] = 1
+                    if i == j:
+                        gs_conn[i][j] = 0
+                    else:
+                        # ground station can communicate
+                        gs_conn[i][j] = 1
                 elif i >= self.size and j < self.size:
                     flag = self.sats[j].observe_sat(self.stations[i - self.size][0], self.stations[i - self.size][1], timestamp)
                     if flag:
@@ -81,13 +84,16 @@ class Constellation:
                 if i < self.size and j < self.size:
                     connection[i][j] = sat_conn[i][j]
                 elif i >= self.size and j >= self.size:
+                    if i == j:
+                        connection[i][j] = (False, -1, -1)
                     # ground station can communicate
-                    connection[i][j] = (True, config.Ground_bandwidth, config.Ground_latency)
+                    else:
+                        connection[i][j] = (True, config.Ground_bandwidth, config.Ground_latency)
                 else:
                     if gs_conn[i][j] == 1:
                         connection[i][j] = (True, config.Ground_Sat_bandwidth, config.Ground_Sat_latency)
                     else:
-                        connection[i][j] = (False, 0, 0)
+                        connection[i][j] = (False, -1, -1)
         return connection
 
     

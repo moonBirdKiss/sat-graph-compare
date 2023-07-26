@@ -88,6 +88,75 @@ void UpdateSats(SatGraph *satGraph, int certainTime)
     }
 }
 
+void GSUpdateSats(SatGraph *satGraph, int certainTime)
+{
+    CURL *curl;
+    CURLcode res;
+    std::string readBuffer;
+    curl = curl_easy_init();
+    if (curl)
+    {
+        curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:8000/gs-communication");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_slist *headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        // modify the args
+        int size = satGraph->GetSize();
+        int gsSize = satGraph->GetSize() - 1;
+        std::stringstream ss;
+        ss << "{ \"size\": " << gsSize << ", \"time\": " << certainTime << " }";
+        std::string json = ss.str();
+
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json.c_str());
+        res = curl_easy_perform(curl);
+
+        if (res != CURLE_OK)
+        {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
+        else
+        {
+            JSONCPP_STRING err;
+            Json::Value jsonData;
+            Json::CharReaderBuilder jsonReader;
+            const std::unique_ptr<Json::CharReader> reader(jsonReader.newCharReader());
+            bool parsingSuccessful =
+                reader->parse(readBuffer.c_str(), readBuffer.c_str() + readBuffer.length(), &jsonData, &err);
+            if (parsingSuccessful)
+            {
+                for (int i = 0; i < size; ++i)
+                {
+                    for (int j = i + 1; j < size; ++j)
+                    {
+
+                        bool flag = jsonData[i][j][0].asBool();
+                        float dis = jsonData[i][j][1].asFloat();
+                        float latency = jsonData[i][j][2].asFloat();
+                        bool res = satGraph->GetSatConn(i, j)->UpdateLinkInfo(flag, dis, latency);
+                        if (res)
+                        {
+                            if (flag)
+                            {
+                                satGraph->RecoverLink(i, j, Seconds(5));
+                            }
+                            else
+                            {
+                                satGraph->TearDownLink(i, j, Seconds(4));
+                            }
+                        }
+                    }
+                }
+                satGraph->SatGraphInfo();
+            }
+            curl_easy_cleanup(curl);
+        }
+        return;
+    }
+}
+
 void compareNode(ns3::Ptr<ns3::Node> nodeA)
 {
     ns3::Ptr<ns3::Ipv4> ipv4 = nodeA->GetObject<ns3::Ipv4>();
@@ -153,7 +222,7 @@ void changeSats(SatGraph *satGraph, int timeInterval, int startTime, int endTime
     for (int i = startTime; i < endTime; i = i + timeInterval)
     {
         std::cout << "[changeSats]: Time: " << i << std::endl;
-        Simulator::Schedule(Seconds(i), &UpdateSats, satGraph, i);
+        Simulator::Schedule(Seconds(i), &GSUpdateSats, satGraph, i);
 
         // 同时打印一下各个节点的ipv4情况
     }

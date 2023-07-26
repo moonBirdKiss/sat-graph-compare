@@ -17,12 +17,14 @@ NS_LOG_COMPONENT_DEFINE("OlsrStaGraph");
 using namespace ns3;
 
 const int NodeNum = 50;
-const int SimluationTime = 60 * 60 * 2;
+// const int SimluationTime = 60 * 60 * 2;
+
 const int TimeInterval = 10;
-const int StartTime = 11;
-const int EndtTime = SimluationTime - 50;
-const int SndAppTime = 2;
-const int RecAppTime = 1;
+const int StartTime = 60 * 8;
+const int SimluationTime = StartTime + 62;
+const int EndtTime = StartTime + 60;
+const int SndAppTime = 60 * 8 - 2;
+const int RecAppTime = SndAppTime - 10;
 
 int main(int argc, char *argv[])
 {
@@ -98,6 +100,13 @@ int main(int argc, char *argv[])
     stack.Install(nodes);
     stack.Install(nodeforOnOff.Get(1));
     stack.Install(nodeforPacketSink.Get(1));
+    // stack.Install();
+
+    // InternetStackHelper testStack;
+    // testStack.Install(nodes.Get(0));
+    // testStack.Install(nodes.Get(NodeNum - 1));
+    // testStack.Install(nodeforOnOff.Get(1));
+    // testStack.Install(nodeforPacketSink.Get(1));
 
     Ipv4AddressHelper address;
 

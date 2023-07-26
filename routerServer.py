@@ -22,9 +22,25 @@ def communication():
 
     return jsonify(res)  # 返回数据
 
+@app.route('/connectivity', methods=['POST'])
+def connectivity():
+    print(request.json)  # 打印请求的JSON
+    query_time = request.json.get('time')
+    size = request.json.get('size')
+    logger.debug(f"query_time:{query_time}, size:{size}")
+
+    # 构建constellation，然后返回对应的值
+    sats = constellation.new_sats(size)
+    ts = skyfield.api.load.timescale()
+    dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
+
+    res = sats.sat_connectivity(dt)
+    # logger.info(res)
+
+    return jsonify(res)  # 返回数据
 
 @app.route('/gs-communication', methods=['POST'])
-def communication():
+def gs_communication():
     # return the gs information
     print(request.json)  # 打印请求的JSON
     query_time = request.json.get('time')
@@ -37,6 +53,24 @@ def communication():
     dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
 
     res = sats.gs_connection(dt)
+    # logger.info(res)
+
+    return jsonify(res)  # 返回数据
+
+@app.route('/gs-connectivity', methods=['POST'])
+def gs_connectivity():
+    # return the gs information
+    print(request.json)  # 打印请求的JSON
+    query_time = request.json.get('time')
+    size = request.json.get('size')
+    logger.debug(f"query_time:{query_time}, size:{size}")
+
+    # 构建constellation，然后返回对应的值
+    sats = constellation.new_sats(size)
+    ts = skyfield.api.load.timescale()
+    dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
+
+    res = sats.gs_connectivity(dt)
     # logger.info(res)
 
     return jsonify(res)  # 返回数据
