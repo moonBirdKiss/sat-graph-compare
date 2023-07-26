@@ -3,7 +3,8 @@ import requests
 url = 'http://127.0.0.1:8000/communication'
 
 payload = {
-    "node": 3
+    "size": 3,
+    "time": 40
 }
 
 response = requests.post(url, json=payload)

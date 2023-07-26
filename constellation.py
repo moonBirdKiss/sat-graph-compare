@@ -7,9 +7,13 @@ import plot
 
 
 class Constellation:
-    def __init__(self, satellites):
+    def __init__(self, satellites, ground_stations):
+        # ground_station is a list of (lat, lon), such as 
+        # ground_station = [[-120.55, 45.32], [], []]
         self.size = len(satellites)
         self.sats = satellites
+        self.stations = ground_stations
+        self.ground_num = len(ground_stations)
 
     # this method will return a matrix which reflect the connectivity of
     # certain timestamp, and timestamp is utc object
@@ -39,6 +43,53 @@ class Constellation:
                 else:
                     res[i][j] = 0
         return res
+
+
+    def gs_connectivity(self, timestamp):
+        # this method return the connectivity matrix of ground and sats
+        sat_conn = self.sat_connectivity(timestamp)
+        sum_num = self.size + self.ground_num
+        gs_conn = [[0 for _ in range(sum_num)] for _ in range(sum_num)]
+
+        for i in range(sum_num):
+            for j in range(sum_num):
+                if i < self.size and j < self.size:
+                    gs_conn[i][j] = sat_conn[i][j]
+                elif i >= self.size and j >= self.size:
+                    # ground station can communicate
+                    gs_conn[i][j] = 1
+                elif i >= self.size and j < self.size:
+                    flag = self.sats[j].observe_sat(self.stations[i - self.size][0], self.stations[i - self.size][1], timestamp)
+                    if flag:
+                        logger.debug(f"Ground station {i - self.size} can observe satellite {j}")
+                    gs_conn[i][j] = 1 if flag else 0
+                else:
+                    flag = self.sats[i].observe_sat(self.stations[j - self.size][0], self.stations[j - self.size][1], timestamp)
+                    if flag:
+                        logger.debug(f"Ground station {j - self.size} can observe satellite {i}")
+                    gs_conn[i][j] = 1 if flag else 0
+        return gs_conn
+
+
+    def gs_connection(self, timestamp):
+        sat_conn = self.sat_connection(timestamp)
+        gs_conn = self.gs_connectivity(timestamp)
+        sum_num = self.size + self.ground_num
+        connection = [ [ (False, -1, -1) for _ in range(sum_num)] for _ in range(sum_num)]
+        for i in range(sum_num):
+            for j in range(sum_num):
+                if i < self.size and j < self.size:
+                    connection[i][j] = sat_conn[i][j]
+                elif i >= self.size and j >= self.size:
+                    # ground station can communicate
+                    connection[i][j] = (True, config.Ground_bandwidth, config.Ground_latency)
+                else:
+                    if gs_conn[i][j] == 1:
+                        connection[i][j] = (True, config.Ground_Sat_bandwidth, config.Ground_Sat_latency)
+                    else:
+                        connection[i][j] = (False, 0, 0)
+        return connection
+
     
     def sat_connection(self, timestamp):
         # this method return [ [(flag, bandwidth, latency), (), ()], 
@@ -59,7 +110,7 @@ class Constellation:
 
 
 # new_sats() create a constellation, default size is config.Constellation_scale
-def new_sats(size=config.Constellation_scale):
+def new_sats(size=config.Constellation_scale, ground_num=config.Ground_num):
     stations_url = config.sat_TLE_path
     satellites = skyfield.api.load.tle_file(stations_url)
     by_number = {
@@ -69,7 +120,11 @@ def new_sats(size=config.Constellation_scale):
     sats = []
     for k, v in by_number.items():
         sats.append(Satellite(k, v))
-    c = Constellation(sats)
+    
+    ground = []
+    for i in range(ground_num):
+        ground.append([config.Ground_locations[i][1][0], config.Ground_locations[i][1][1]])
+    c = Constellation(sats, ground)
     return c
 
 

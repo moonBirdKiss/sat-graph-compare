@@ -55,9 +55,9 @@ class Satellite:
     # print the infomation of the satellite at a certain time
     def info(self, timestamp):
         self.update_pos(timestamp)
-        logger.debug(
-            f"Satellite number: {self.number}, self.lat: {self.lat}, self.lon: {self.lon}, self.height: {self.height}"
-        )
+        # logger.debug(
+        #     f"Satellite number: {self.number}, self.lat: {self.lat}, self.lon: {self.lon}, self.height: {self.height}"
+        # )
         return self.lat, self.lon, self.height, self.number
 
     # timestamp is a utc object
@@ -68,9 +68,9 @@ class Satellite:
         geocentric = self.satellite.at(timestamp)
         sp = wgs84.subpoint(geocentric)
         height = wgs84.height_of(geocentric).km
-        logger.debug(f'Latitude: {sp.latitude.degrees}')
-        logger.debug(f'Longitude: {sp.longitude.degrees}')
-        logger.debug(f'height: {height}')
+        # logger.debug(f'Latitude: {sp.latitude.degrees}')
+        # logger.debug(f'Longitude: {sp.longitude.degrees}')
+        # logger.debug(f'height: {height}')
         return sp.latitude.degrees, sp.longitude.degrees, height
 
     # Return the distance from the satellite position at a certain time (ground projection point)
@@ -142,18 +142,31 @@ class Satellite:
 
         height_of_line_km = (p1_h * p2_h * math.sin(rad)) / dis_km
         if dis_km > config.LCTRange_m / 1000:
-            logger.debug(
-                f"{self.number} and {anotherSat.number}: The distance is too far to communicate directly"
-            )
+            # logger.debug(
+            #     f"{self.number} and {anotherSat.number}: The distance is too far to communicate directly"
+            # )
             ifreachable = False
 
         if height_of_line_km < config.radius_of_earth_m / 1000 + config.height_of_atmosphere_m / 1000:
-            logger.debug(
-                f"{self.number} and {anotherSat.number}: The atomsphere is too thick to communicate directly"
-            )
+            # logger.debug(
+            #     f"{self.number} and {anotherSat.number}: The atomsphere is too thick to communicate directly"
+            # )
             ifreachable = False
 
         return ifreachable, dis_km
+    
+    def observe_sat(self,gound_lat, ground_lon, timestamp):
+        # this method is used to judge the ground is in the range of the satellite
+        bluffton = wgs84.latlon(gound_lat,ground_lon)
+        difference = self.satellite - bluffton
+        topocentric = difference.at(timestamp)
+        alt, az, distance = topocentric.altaz()
+        if alt.degrees > config.Link_angle:
+            # logger.debug('The ISS is above the horizon')
+            return True
+        else:
+            return False
+        
 
 
 if __name__ == "__main__":
