@@ -6,6 +6,7 @@ import astra_topology
 import numpy as np
 import plot
 import networkx as nx
+import config
 
 
 app = Flask(__name__)
@@ -98,31 +99,35 @@ def sat_route_update():
     # 构建constellation，然后返回对应的值
     c = constellation.new_sats(sat_size, ground_size)
 
-    sats = constellation.new_sats(sat_size, ground_size)
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 30)
 
     # 只需得到连通性就可以了
     gs_connectivity = c.gs_connectivity(dt)
-    
-    if nx.is_connected(nx.from_numpy_matrix(np.array(gs_connectivity))):
-        logger.info("The graph is connected")
-    else:
-        logger.info("The graph is not connected")
-        gs_connectivity, _= astra_topology.get_connected_subgraph_adj_matrices(np.array(gs_connectivity))
-    
-    mortify_matrix = astra_topology.astra_topology(np.array(gs_connectivity), 4)
-    plot.visulizeGraph(mortify_matrix)
+
+    logger.info(f"original: {gs_connectivity}")
+
+    gs_connectivity, new_to_old, old_to_new = astra_topology.get_certain_subgraph(index,
+                                                                                  np.array(gs_connectivity))
+
+    mortify_matrix = astra_topology.astra_topology(
+        np.array(gs_connectivity), 4)
+    logger.info(f"mortify: {mortify_matrix}")
 
     # 然后从相关的矩阵中构建path提供给edgemesh
+    shorest_path = astra_topology.shortest_paths(
+        old_to_new.get(index), mortify_matrix)
 
-    response_data = {
-        "1": ["one-string", "two-string", "three-string"],
-        "2": [
-            "one-string",
-        ]
-    }
-    return jsonify(response_data)
+    logger.info(f"shorest_path: {shorest_path}")
+
+    # 利用mapping，将node的值变回去
+    res = astra_topology.index_mapping(shorest_path, new_to_old)
+    logger.info(f"res: {res}")
+
+    dic = astra_topology.from_index_to_dic(res)
+    logger.info(f"dic: {dic}")
+
+    return jsonify(dic)
 
 
 if __name__ == '__main__':

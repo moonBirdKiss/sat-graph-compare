@@ -42,7 +42,7 @@ Ground_Sat_bandwidth = 1 * 1000 * 1000 * 1000  # 1Gbps
 Ground_Sat_latency = 20  # ms
 Ground_num = 1
 
-sat_TLE_path = "/home/dqf/Documents/python/sat-graph-compare/station.txt"
+sat_TLE_path = "/Users/dengquanfeng/files/project/spaceGround/INFOCOM/sat-graph-compare/station.txt"
 res_path = "/home/dqf/Documents/python/sat-graph-compare/res/"
 
 # pi configuration
