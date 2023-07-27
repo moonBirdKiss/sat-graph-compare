@@ -23,7 +23,7 @@ def test_change_compare():
     print("Number of changes:", change_count)
 
 
-def sat_compare():
+def test_sat_compare():
     cons = constellation.new_sats(50,0)
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 29)
@@ -38,7 +38,7 @@ def sat_compare():
         res.append(change_count)
     return res
 
-def gs_compare():
+def test_gs_compare():
     cons = constellation.new_sats(50,10)
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 29)

@@ -18,14 +18,15 @@ radius_of_polar_m = 6356755  # 6356755m
 Constellation_scale = 20  # size of constellation
 radius_of_earth_m = 6371 * 1000  # radius of earth: m
 height_of_atmosphere_m = 50 * 1000  # height of atmosphere: m
-Link_angle = 25  # link angle: degree
+Link_angle = 15  # link angle: degree
 
 # config the graph similarity
 iteration_time = 10  # 20 time
 time_scale = 60  # 1min per time
 
 # config the ground station
-Ground_locations = [["US (Oregon)", [-120.5542, 45.3238]],
+Ground_locations = [["Test", [2.85, 57.13]],
+                    ["US (Oregon)", [-120.5542, 45.3238]],
                     ["US (Ohio)", [-82.7649, 40.4173]],
                     ["Middle East (Bahrain)", [50.5354, 26.2212]],
                     ["Europe (Stockholm)", [18.0649, 59.3328]],
@@ -42,7 +43,7 @@ Ground_Sat_bandwidth = 1 * 1000 * 1000 * 1000  # 1Gbps
 Ground_Sat_latency = 20  # ms
 Ground_num = 1
 
-sat_TLE_path = "/Users/dengquanfeng/files/project/spaceGround/INFOCOM/sat-graph-compare/station.txt"
+sat_TLE_path = "/home/dqf/Documents/python/sat-graph-compare/station.txt"
 res_path = "/home/dqf/Documents/python/sat-graph-compare/res/"
 
 # pi configuration

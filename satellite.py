@@ -161,8 +161,8 @@ class Satellite:
         difference = self.satellite - bluffton
         topocentric = difference.at(timestamp)
         alt, az, distance = topocentric.altaz()
+        # logger.info(f"alt: {alt.degrees}, az: {az.degrees}, distance: {distance.km}")
         if alt.degrees > config.Link_angle:
-            # logger.debug('The ISS is above the horizon')
             return True
         else:
             return False

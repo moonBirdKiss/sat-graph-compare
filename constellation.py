@@ -127,6 +127,9 @@ class Constellation:
 
     def get_sats(self):
         return self.sats
+    
+    def get_station(self):
+        return self.stations
 
 
 # new_sats() create a constellation, default size is config.Constellation_scale
