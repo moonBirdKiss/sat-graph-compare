@@ -74,7 +74,9 @@ void SendPktApp::SendPacket(void)
     packet->AddByteTag(timestamp);
     m_socket->Send(packet);
 
-    if (++m_packetsSent < m_nPackets)
+    // 注释掉著，让其一直发送
+    // m_packetsSent++;
+    if (m_packetsSent < m_nPackets)
     {
         ScheduleTx();
     }

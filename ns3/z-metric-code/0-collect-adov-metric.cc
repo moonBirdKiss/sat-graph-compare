@@ -19,10 +19,13 @@ using namespace ns3;
 const int NodeNum = 50;
 // const int SimluationTime = 60 * 60 * 2;
 
+const int QueryTime = 60 * 60 * 2;
 const int TimeInterval = 10;
-const int StartTime = 60 * 8;
-const int SimluationTime = StartTime + 62;
-const int EndtTime = StartTime + 60;
+// 480初始是连接的
+// 620 0->1->7会变成 0->7的路线
+const int StartTime = 608;
+const int SimluationTime = StartTime + QueryTime + 2;
+const int EndtTime = StartTime + QueryTime;
 const int SndAppTime = 60 * 8 - 2;
 const int RecAppTime = SndAppTime - 10;
 
@@ -37,7 +40,7 @@ int main(int argc, char *argv[])
     // LogComponentEnable("OnOffApplication", LOG_LEVEL_INFO);
     LogComponentEnable("PacketSink", LOG_LEVEL_INFO);
     LogComponentEnable("OlsrStaGraph", LOG_LEVEL_ALL);
-    // LogComponentEnable("SatLink", LOG_LEVEL_DEBUG);
+    LogComponentEnable("SatLink", LOG_LEVEL_INFO);
     LogComponentEnable("SatGraph", LOG_LEVEL_INFO);
     LogComponentEnable("DataReceiver", LOG_LEVEL_DEBUG);
     LogComponentEnable("SendPktApp", LOG_LEVEL_DEBUG);
@@ -60,7 +63,7 @@ int main(int argc, char *argv[])
 
     PointToPointHelper pointToPoint;
     pointToPoint.SetDeviceAttribute("DataRate", StringValue("10000Mbps"));
-    pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
+    pointToPoint.SetChannelAttribute("Delay", StringValue("20ms"));
 
     // construct a satGraph to collect the nodeInfo
     SatGraph satGraph(NodeNum);

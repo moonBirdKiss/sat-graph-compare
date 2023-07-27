@@ -64,7 +64,8 @@ void DataReceiver::ReceivePacket(Ptr<Socket> socket)
             m_totBytes += pktSize;
             NS_LOG_DEBUG("[DataReceiver::ReceivePacket]: Packet size: " << pktSize << " bytes"
                                                                         << ", Total bytes: " << m_totBytes << " bytes");
-            AppendToFile(delay.GetSeconds(), m_totBytes, m_totBytes, "0-recvPkt.log");
+            DataReceiverAppendToFile(Simulator::Now().GetSeconds(), delay.GetSeconds(), m_totBytes, m_totBytes,
+                                     "0-recvPkt.log");
         }
         else
         {
