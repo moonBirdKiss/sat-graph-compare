@@ -51,7 +51,7 @@ def connectivity():
 @app.route('/gs-communication', methods=['POST'])
 def gs_communication():
     # return the gs information
-    print(request.json)  # 打印请求的JSON
+    logger.info(f"gs-communication: request.json: {request.json}")  # 打印请求的JSON
     query_time = request.json.get('time')
     size = request.json.get('size')
     logger.debug(f"query_time:{query_time}, size:{size}")
@@ -61,6 +61,8 @@ def gs_communication():
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
 
+    tmp = sats.gs_connectivity(dt)
+    logger.info(f"gs-communication: tmp: {tmp}")
     res = sats.gs_connection(dt)
     # logger.info(res)
 
@@ -70,7 +72,7 @@ def gs_communication():
 @app.route('/gs-connectivity', methods=['POST'])
 def gs_connectivity():
     # return the gs information
-    print(request.json)  # 打印请求的JSON
+    logger.info(f"gs-connectivity: request.json: {request.json}")  # 打印请求的JSON
     query_time = request.json.get('time')
     size = request.json.get('size')
     logger.debug(f"query_time:{query_time}, size:{size}")
@@ -81,7 +83,7 @@ def gs_connectivity():
     dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
 
     res = sats.gs_connectivity(dt)
-    # logger.info(res)
+    logger.info(res)
 
     return jsonify(res)  # 返回数据
 
