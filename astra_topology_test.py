@@ -42,5 +42,17 @@ def test_generate_tree():
     print(ret)
 
 
+def test_extend():
+    # 测试
+    G = generate_complete_graph(30)
+    T = generate_tree(G, 4)
+    result = expand_tree(G, T)
+    print(result)
+
+    plot.visulizeGraph(G.tolist())
+    plot.visulizeGraph(T.tolist())
+    plot.visulizeGraph(result.tolist())
+
+
 if __name__ == "__main__":
-    test_generate_tree()
+    test_extend()
