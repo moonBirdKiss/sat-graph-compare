@@ -1,7 +1,6 @@
 import networkx as nx
 import numpy as np
 from config import logger
-import plot
 import config
 
 

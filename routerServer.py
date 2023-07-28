@@ -4,7 +4,6 @@ import constellation
 import skyfield.api
 import astra_topology
 import numpy as np
-import plot
 import networkx as nx
 import config
 
@@ -22,7 +21,7 @@ def communication():
     # 构建constellation，然后返回对应的值
     sats = constellation.new_sats(size)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
+    dt = ts.utc(2023, 7, 27, 12, 20, 30 + query_time)
 
     res = sats.sat_connection(dt)
     # logger.info(res)
@@ -133,4 +132,4 @@ def sat_route_update():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8000)
+    app.run(host='0.0.0.0', port=8000)

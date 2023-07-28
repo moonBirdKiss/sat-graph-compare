@@ -3,7 +3,6 @@ from config import logger
 import model
 import skyfield.api
 import config
-import plot
 
 
 class Constellation:
@@ -127,7 +126,7 @@ class Constellation:
 
     def get_sats(self):
         return self.sats
-    
+
     def get_station(self):
         return self.stations
 
