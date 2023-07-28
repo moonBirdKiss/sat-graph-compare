@@ -9,7 +9,6 @@ import plot
 def test_sat_router():
     url = 'http://127.0.0.1:8000/sat-route-update'
 
-
     payload = {
         "sat_size": 7,
         "ground_size": 1,
@@ -21,13 +20,14 @@ def test_sat_router():
 def test_gs_connectivity():
     # Define the URL and the payload
     url = 'http://127.0.0.1:8000/gs-connectivity'
-    for i in range(1, 100):
-        payload = {'size': 8, 'time':4200 + 60 * i}
+    for i in range(0, 20):
+        payload = {'size': 8, 'time': 60 * i}
 
-        logger.info(f"this is the index: {4200+ 60 * i}")
+        logger.info(f"this is the index: {60 * i}")
 
         # Send the POST request
-        response = requests.post(url, data=json.dumps(payload), headers={'Content-Type': 'application/json'})
+        response = requests.post(url, data=json.dumps(payload), headers={
+                                 'Content-Type': 'application/json'})
 
         # If the request was successful (HTTP status code 200), print the adjacency matrix
         if response.status_code == 200:
@@ -35,9 +35,8 @@ def test_gs_connectivity():
             print(adjacency_matrix)
         else:
             print('Request failed with status code', response.status_code)
-        
-        plot.visulizeGraph(adjacency_matrix)
 
+        plot.visulizeGraph(adjacency_matrix)
 
 
 if __name__ == "__main__":

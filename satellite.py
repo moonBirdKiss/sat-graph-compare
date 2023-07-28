@@ -154,10 +154,10 @@ class Satellite:
             ifreachable = False
 
         return ifreachable, dis_km
-    
-    def observe_sat(self,gound_lat, ground_lon, timestamp):
+
+    def observe_sat(self, gound_lat, ground_lon, timestamp):
         # this method is used to judge the ground is in the range of the satellite
-        bluffton = wgs84.latlon(gound_lat,ground_lon)
+        bluffton = wgs84.latlon(gound_lat, ground_lon)
         difference = self.satellite - bluffton
         topocentric = difference.at(timestamp)
         alt, az, distance = topocentric.altaz()
@@ -166,7 +166,6 @@ class Satellite:
             return True
         else:
             return False
-        
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ def test_sat_connectivity():
     sats[1].info(dt)
     logger.info(res)
 
+
 def test_sat_connection():
     # 这个函数证明了python中的constellation类进行连接性计算是没有问题的
     cons = new_sats(3, 0)
@@ -30,7 +31,7 @@ def test_observe():
     # 这个函数证明了python中的constellation类进行地面观测性计算是没有问题的
     cons = new_sats(3, 1)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 27, 23, 59, 7)
+    dt = ts.utc(2023, 7, 28, 13, 25, 4)
 
     sats = cons.get_sats()
     sats[0].info(dt)
@@ -54,12 +55,13 @@ def test_observe():
 def test_oneweb():
     cons = new_sats(8, 1)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 27, 11, 59, 7)   
+    dt = ts.utc(2023, 7, 28, 13, 25, 4)
     res1 = cons.sat_connectivity(dt)
     plot.visulizeGraph(res1)
     logger.info(f"res1: {res1}")
     res2 = cons.sat_connection(dt)
-    logger.info(f"res2: {res2}")    
+    logger.info(f"res2: {res2}")
+
 
 if __name__ == "__main__":
-    test_oneweb()
+    test_observe()

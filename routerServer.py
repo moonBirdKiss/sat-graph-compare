@@ -22,7 +22,7 @@ def communication():
     # 构建constellation，然后返回对应的值
     sats = constellation.new_sats(size)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
+    dt = ts.utc(2023, 7, 27, 12, 00, 30 + query_time)
 
     res = sats.sat_connection(dt)
     # logger.info(res)
@@ -78,9 +78,9 @@ def gs_connectivity():
     logger.debug(f"query_time:{query_time}, size:{size}")
 
     # 构建constellation，然后返回对应的值
-    sats = constellation.new_sats(size)
+    sats = constellation.new_sats(size, 2)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
+    dt = ts.utc(2023, 7, 27, 12, 00, 2100 + query_time)
 
     res = sats.gs_connectivity(dt)
     logger.info(res)
