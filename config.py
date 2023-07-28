@@ -25,7 +25,7 @@ iteration_time = 10  # 20 time
 time_scale = 60  # 1min per time
 
 # config the ground station
-Ground_locations = [["Test", [2.85, 57.13]],
+Ground_locations = [
                     ["US (Oregon)", [-120.5542, 45.3238]],
                     ["US (Ohio)", [-82.7649, 40.4173]],
                     ["Middle East (Bahrain)", [50.5354, 26.2212]],

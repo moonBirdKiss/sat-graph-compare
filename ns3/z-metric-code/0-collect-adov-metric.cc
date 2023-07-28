@@ -16,17 +16,17 @@ NS_LOG_COMPONENT_DEFINE("OlsrStaGraph");
 
 using namespace ns3;
 
-const int NodeNum = 50;
+const int NodeNum = 8;
 // const int SimluationTime = 60 * 60 * 2;
 
-const int QueryTime = 60 * 60 * 2;
+const int QueryTime = 300;
 const int TimeInterval = 10;
 // 480初始是连接的
 // 620 0->1->7会变成 0->7的路线
-const int StartTime = 608;
+const int StartTime = 1208;
 const int SimluationTime = StartTime + QueryTime + 2;
 const int EndtTime = StartTime + QueryTime;
-const int SndAppTime = 60 * 8 - 2;
+const int SndAppTime = StartTime - 2;
 const int RecAppTime = SndAppTime - 10;
 
 int main(int argc, char *argv[])
@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
     LogComponentEnable("SatGraph", LOG_LEVEL_INFO);
     LogComponentEnable("DataReceiver", LOG_LEVEL_DEBUG);
     LogComponentEnable("SendPktApp", LOG_LEVEL_DEBUG);
-    // LogComponentEnable("AodvRoutingProtocol", LOG_LEVEL_ALL);
-    // LogComponentEnable("Utils", LOG_LEVEL_ALL);
+    // LogComponentEnable("AodvRoutingProtocol", LOG_LEVEL_FUNCTION);
+    LogComponentEnable("Utils", LOG_LEVEL_ALL);
     // LogComponentEnableAll(LOG_LEVEL_INFO);
 
     NodeContainer nodes;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     nodeforPacketSink.Create(1);
 
     PointToPointHelper pointToPoint;
-    pointToPoint.SetDeviceAttribute("DataRate", StringValue("10000Mbps"));
+    pointToPoint.SetDeviceAttribute("DataRate", StringValue("10Mbps"));
     pointToPoint.SetChannelAttribute("Delay", StringValue("20ms"));
 
     // construct a satGraph to collect the nodeInfo
@@ -85,24 +85,27 @@ int main(int argc, char *argv[])
     NetDeviceContainer devicesforPacketSink = pointToPoint.Install(nodeforPacketSink);
 
     InternetStackHelper stack;
-    Ipv4StaticRoutingHelper staticRh;
-
-    Ipv4ListRoutingHelper listRH;
-    listRH.Add(staticRh, 0);
-
     AodvHelper olsr;
-    listRH.Add(olsr, 10);
-
-    stack.SetRoutingHelper(listRH);
+    stack.SetRoutingHelper(olsr);
 
     // stack.SetRoutingHelper(olsr);
     // 此处的nodes应该还要包括off和sink
-    // nodes.Add(nodeforOnOff.Get(1));
-    // nodes.Add(nodeforPacketSink.Get(1));
+    nodes.Add(nodeforOnOff.Get(1));
+    nodes.Add(nodeforPacketSink.Get(1));
 
     stack.Install(nodes);
-    stack.Install(nodeforOnOff.Get(1));
-    stack.Install(nodeforPacketSink.Get(1));
+    // stack.Install(nodeforOnOff.Get(1));
+    // stack.Install(nodeforPacketSink.Get(1));
+
+    // // 为两个应用添加默认网关
+    // Ptr<Ipv4StaticRouting> staticRoutingOnOff =
+    //     Ipv4RoutingHelper::GetRouting<Ipv4StaticRouting>(nodeforOnOff.Get(1)->GetObject<Ipv4>()->GetRoutingProtocol());
+    // Ptr<Ipv4StaticRouting> staticRoutingPacketSink = Ipv4RoutingHelper::GetRouting<Ipv4StaticRouting>(
+    //     nodeforPacketSink.Get(1)->GetObject<Ipv4>()->GetRoutingProtocol());
+
+    // staticRoutingOnOff->SetDefaultRoute("10.111.222.1", 1);
+    // staticRoutingPacketSink->SetDefaultRoute("10.111.223.1", 1);
+
     // stack.Install();
 
     // InternetStackHelper testStack;
@@ -138,17 +141,26 @@ int main(int argc, char *argv[])
     DataReceiver *dataRecver = new DataReceiver(nodeforPacketSink.Get(1), packSinkIfac.GetAddress(1), port);
     Address targetAddress = dataRecver->GetBindAddress();
     dataRecver->SetStartTime(Seconds(RecAppTime));
+    dataRecver->SetStopTime(Seconds(SimluationTime - 1));
 
     // Configure onoff app
     SendPktApp *sendApp = new SendPktApp();
     sendApp->Setup(nodeforOnOff.Get(1), targetAddress, 1024, 57600000, DataRate("1Mbps"));
+    // sendApp->Setup(nodeforOnOff.Get(1), targetAddress, 1024, 57600000, DataRate("32kbps"));
     sendApp->SetStartTime(Seconds(SndAppTime));
+    sendApp->SetStopTime(Seconds(SimluationTime - 1));
 
     // 在这个函数这里修改网络的拓扑图
     changeSats(&satGraph, TimeInterval, StartTime, EndtTime);
     // changeSatsForTest(&satGraph, TimeInterval, StartTime, EndtTime);
 
-    // printRoutingTable(Seconds(25.0), "scratch/2-olsrTest/0-olsr-test-0.routingtable", nodes);
+    // printRoutingTable(Seconds(610), "./test-aodv-610.log", nodes);
+    // printRoutingTable(Seconds(605), "./test-aodv-605.log", nodes);
+    // printRoutingTable(Seconds(615), "./test-aodv-615.log", nodes);
+    // printRoutingTable(Seconds(625), "./test-aodv-625.log", nodes);
+    // printRoutingTable(Seconds(635), "./test-aodv-635.log", nodes);
+    // printRoutingTable(Seconds(645), "./test-aodv-645.log", nodes);
+    // printRoutingTable(Seconds(655), "./test-aodv-655.log", nodes);
 
     splitLog(SimluationTime);
 

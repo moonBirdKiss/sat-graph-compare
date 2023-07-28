@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # 读取数据文件
-data = pd.read_csv('res-2.txt', sep='\s+', header=None, names=['time', 'latency', 'int1', 'int2'])
+data = pd.read_csv('0-recvPkt.log', sep='\s+', header=None, names=['time', 'latency', 'int1', 'int2'])
 
 # 创建图表
 plt.figure(figsize=(10,6))
