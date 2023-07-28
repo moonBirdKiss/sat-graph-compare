@@ -2,7 +2,6 @@ from config import logger
 from astra_topology import *
 import numpy as np
 import plot
-import matplotlib.pyplot as plt
 
 
 def test_sub_graph():
