@@ -75,7 +75,7 @@ def test_common_sub():
     print("Common subgraph adjacency matrix:", common_matrix)
 
 
-def get_same_link(time_scale=10, start_time=0):
+def test_get_same_link(time_scale=10, start_time=0):
     cons = constellation.new_sats(50,10)
     ts = skyfield.api.load.timescale()
     dt = ts.utc(2023, 7, 20, 12, 20 + start_time, 29)
@@ -96,6 +96,49 @@ def get_same_link(time_scale=10, start_time=0):
         g1 = common_matrix
     return size
 
+def get_gs_same_link(file_name,time_scale=30, start_time=0, satnum=50):
+    cons = constellation.new_sats(satnum,10)
+    ts = skyfield.api.load.timescale()
+    dt = ts.utc(2023, 7, 20, 12, 20 + start_time, 29)
+
+    # set the init graph
+    g1 = cons.gs_connectivity(dt)
+    
+    FILE = open(file_name, "w")
+    
+    for i in range(1, time_scale+1):
+        dt = ts.utc(2023, 7, 20, 12, 20 + start_time + i , 29)
+        g2 = cons.gs_connectivity(dt)
+        common_matrix = common_subgraph([g1, g2])
+        size = np.count_nonzero(common_matrix)
+        flag = is_connected(common_matrix)
+        logger.info(f"{i}: Common subgraph adjacency matrix: {size}, flag: {flag}")
+        FILE.write("deltaT: "+str(i)+"############\n")
+        FILE.write(str(size)+"\n")
+        g1 = common_matrix
+    FILE.close()
+
+def get_sat_same_link(file_name,time_scale=30, start_time=0, satnum=50):
+    cons = constellation.new_sats(satnum,10)
+    ts = skyfield.api.load.timescale()
+    dt = ts.utc(2023, 7, 20, 12, 20 + start_time, 29)
+
+    # set the init graph
+    g1 = cons.sat_connectivity(dt)
+    
+    FILE = open(file_name, "w")
+    
+    for i in range(1, time_scale+1):
+        dt = ts.utc(2023, 7, 20, 12, 20 + start_time + i , 29)
+        g2 = cons.sat_connectivity(dt)
+        common_matrix = common_subgraph([g1, g2])
+        size = np.count_nonzero(common_matrix)
+        flag = is_connected(common_matrix)
+        logger.info(f"{i}: Common subgraph adjacency matrix: {size}, flag: {flag}")
+        FILE.write("deltaT: "+str(i)+"############\n")
+        FILE.write(str(size)+"\n")
+        g1 = common_matrix
+    FILE.close()
 
 def test_is_connect():
     matrix3 = [[0, 0, 1, 0], 
@@ -111,6 +154,7 @@ def test_is_connect():
     
 
 if __name__ == "__main__":
-    for i in range(2, 60):
-        get_same_link(5, i)
-        logger.info("=====================================")
+    
+    for start_time in range(60,120):
+        file_name = "./gs_record/sec"+str(start_time)+".txt"
+        get_gs_same_link(file_name,start_time=start_time)
