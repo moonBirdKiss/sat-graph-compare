@@ -23,6 +23,7 @@ class SendPktApp : public Application
   private:
     virtual void StartApplication(void);
     virtual void StopApplication(void);
+    void RestartApplication(void);
     void ScheduleTx(void);
     void SendPacket(void);
     void ConnectionSucceeded(Ptr<Socket> socket);

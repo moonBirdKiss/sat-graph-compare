@@ -22,9 +22,9 @@ def test_gs_connectivity():
     # Define the URL and the payload
     url = 'http://127.0.0.1:8000/gs-connectivity'
     for i in range(1, 100):
-        payload = {'size': 8, 'time':608 + 60 * i}
+        payload = {'size': 8, 'time':4200 + 60 * i}
 
-        logger.info(f"this is the index: {608 + 60 * i}")
+        logger.info(f"this is the index: {4200+ 60 * i}")
 
         # Send the POST request
         response = requests.post(url, data=json.dumps(payload), headers={'Content-Type': 'application/json'})

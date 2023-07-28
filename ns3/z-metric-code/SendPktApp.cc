@@ -51,6 +51,18 @@ void SendPktApp::StartApplication(void)
                                  MakeCallback(&SendPktApp::ConnectionFailed, this));
 }
 
+void SendPktApp::RestartApplication(void)
+{
+    NS_LOG_ERROR("[SendPktApp::RestartApplication]: Restarting: " << m_peer);
+
+    // 重新连接
+    m_socket = Socket::CreateSocket(m_node, TcpSocketFactory::GetTypeId());
+    m_socket->Bind();
+    m_socket->Connect(m_peer);
+    m_socket->SetConnectCallback(MakeCallback(&SendPktApp::ConnectionSucceeded, this),
+                                 MakeCallback(&SendPktApp::ConnectionFailed, this));
+}
+
 void SendPktApp::StopApplication(void)
 {
     m_running = false;
@@ -80,15 +92,16 @@ void SendPktApp::SendPacket(void)
     if (ret == -1)
     {
         errno = m_socket->GetErrno();
-        m_socket->Close();
-        NS_LOG_DEBUG("[SendPktApp::SendPacket]: Failed to send data, error code: " << errno);
+        if (errno == 3)
+        {
+            NS_LOG_ERROR("[SendPktApp::SendPacket] errno: " << errno);
+            ConnectionFailed(m_socket);
+        }
+        else
+        {
+            NS_LOG_ERROR("[SendPktApp::SendPacket] errno: " << errno);
+        }
 
-        // 重新连接
-        m_socket = Socket::CreateSocket(m_node, TcpSocketFactory::GetTypeId());
-        m_socket->Connect(m_peer);
-        m_socket->Bind();
-        m_socket->SetConnectCallback(MakeCallback(&SendPktApp::ConnectionSucceeded, this),
-                                     MakeCallback(&SendPktApp::ConnectionFailed, this));
         // Simulator::Schedule(Seconds(1), &SendPktApp::SendPacket, this);
     }
     else
@@ -124,5 +137,7 @@ void SendPktApp::ConnectionSucceeded(Ptr<Socket> socket)
 // Add connection failed callback function
 void SendPktApp::ConnectionFailed(Ptr<Socket> socket)
 {
-    NS_LOG_DEBUG("[SendPktApp::Failer] at " << Simulator::Now().GetSeconds());
+    NS_LOG_ERROR("[SendPktApp::Failer] at " << Simulator::Now().GetSeconds());
+    socket->Close();
+    RestartApplication();
 }
