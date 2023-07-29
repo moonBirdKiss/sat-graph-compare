@@ -40,12 +40,20 @@ void SatLink::Recover(ns3::Time upTime)
 
 void SatLink::Info()
 {
-    ns3::Ptr<ns3::Ipv4> ipa = nodeA->GetObject<ns3::Ipv4>();
-    ns3::Ptr<ns3::Ipv4> ipb = nodeB->GetObject<ns3::Ipv4>();
-    NS_LOG_INFO("[SatLink]: Info(): node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
-                                           << " are connect at: " << ipa->GetAddress(1, 0).GetLocal() << " and "
-                                           << ipb->GetAddress(1, 0).GetLocal() << " bandwidth: " << bandwidth
-                                           << " latency: " << latency << " status: " << status);
+    if (status == OffStatus)
+    {
+        NS_LOG_INFO("[SatLink]: Info(): node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
+                                               << " are not connected");
+    }
+    else if (status == OnStatus)
+    {
+        ns3::Ptr<ns3::Ipv4> ipa = nodeA->GetObject<ns3::Ipv4>();
+        ns3::Ptr<ns3::Ipv4> ipb = nodeB->GetObject<ns3::Ipv4>();
+        NS_LOG_INFO("[SatLink]: Info(): node-" << nodeA->GetId() << " and node-" << nodeB->GetId()
+                                               << " are connect at: " << ipa->GetAddress(1, 0).GetLocal() << " and "
+                                               << ipb->GetAddress(1, 0).GetLocal() << " bandwidth: " << bandwidth
+                                               << " latency: " << latency << " status: " << status);
+    }
 }
 
 void SatLink::SetSatLinkStackInfo(ns3::NetDeviceContainer devAB)
@@ -83,11 +91,11 @@ ns3::NetDeviceContainer SatLink::GetNetDeviceContainer()
 void SatLink::TearDownLink()
 {
     // 打印此时的状态
-    PrintNodeDetails(nodeA);
+    // PrintNodeDetails(nodeA);
 
-    NS_LOG_DEBUG("[SatLink]: TearDownLink(): " << ns3::Simulator::Now().GetSeconds() << " tear down: node-"
-                                               << nodeA->GetId() << " at " << ifceA << " and node-" << nodeB->GetId()
-                                               << " at " << ifceB);
+    NS_LOG_INFO("[SatLink]: TearDownLink(): " << ns3::Simulator::Now().GetSeconds() << " tear down: node-"
+                                              << nodeA->GetId() << " at " << ifceA << " and node-" << nodeB->GetId()
+                                              << " at " << ifceB);
     status = OffStatus;
     nodeA->GetObject<ns3::Ipv4>()->SetDown(ifceA);
     nodeB->GetObject<ns3::Ipv4>()->SetDown(ifceB);
@@ -95,9 +103,8 @@ void SatLink::TearDownLink()
 
 void SatLink::RecoverLink()
 {
-    NS_LOG_DEBUG("[SatLink]: RecoverLink():" << ns3::Simulator::Now().GetSeconds() << " recover: node-"
-                                             << nodeA->GetId() << " at " << ifceA << " and node-" << nodeB->GetId()
-                                             << " at " << ifceB);
+    NS_LOG_INFO("[SatLink]: RecoverLink():" << ns3::Simulator::Now().GetSeconds() << " recover: node-" << nodeA->GetId()
+                                            << " at " << ifceA << " and node-" << nodeB->GetId() << " at " << ifceB);
 
     bool isAUP = nodeA->GetObject<ns3::Ipv4>()->IsUp(ifceA);
     bool isBUP = nodeB->GetObject<ns3::Ipv4>()->IsUp(ifceB);
