@@ -3,8 +3,7 @@ import numpy as np
 from config import logger
 import plot
 import config
-import constellation
-import skyfield.api
+
 
 def get_connected_subgraph_adj_matrices(adj_matrix):
     # 这个函数也有用，用来做最初的状态
@@ -238,99 +237,3 @@ def index_mapping(shortest_path, mapping):
     return shortest_path
 
 
-def traditional_topology(graph_list, max_degree=4):
-    graph = np.array(graph_list)
-    # 创建一个空的邻接矩阵E，-1表示不可达
-    E = -np.ones(graph.shape)
-    
-    # 获取顶点数量
-    vertices_num = len(graph)
-
-    # 初始化每个顶点的度为0
-    degree = [0]*vertices_num
-
-    # 获得边和对应的权重
-    edges = []
-    for i in range(vertices_num):
-        for j in range(i+1, vertices_num):
-            if graph[i, j] >= 0:
-                edges.append(((i, j), graph[i, j]))
-    
-    # 按照权重对边进行排序
-    edges.sort(key=lambda x: x[1])
-    
-    for edge, _ in edges:
-        u, v = edge
-        # 检查添加边后顶点的度是否超过4
-        if degree[u] < 4 and degree[v] < 4:
-            E[u, v] = E[v, u] = graph[u, v]
-            degree[u] += 1
-            degree[v] += 1
-    
-    return E.tolist()
-
-
-def astra_topology(graph_list, max_degree=4):
-    graph = np.array(graph_list)
-    T = generate_tree(graph, max_degree)
-    res = expand_tree(graph, T)
-    return res.tolist()
-
-def find_common_edges(G1, G2):
-    # 转化为numpy矩阵
-    G1 = np.array(G1)
-    G2 = np.array(G2)
-
-    # 找到那些在两个邻接矩阵中都存在的边
-    common_edges = np.logical_and(G1, G2)
-
-    # 转换为1和0
-    common_edges = common_edges.astype(int)
-
-    # 转换为Python列表并返回
-    return common_edges.tolist()
-
-
-def astra_communication(size, query_time):
-    # 构建constellation，然后返回对应的值
-    sats = constellation.new_sats(size)
-    ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 27, 12, 00, 2000 + query_time)
-
-    next_time = ((query_time + config.Laser_pridiction -1) // config.Laser_pridiction ) * config.Laser_pridiction
-    dt2 = ts.utc(2023, 7, 27, 12, 00, 2000 + next_time)
-
-    res = sats.gs_connection(dt)
-
-    ss_stage_x = sats.sat_connectivity(dt)
-    ss_stage_y = sats.sat_connectivity(dt2)
-    logger.info(f"ss_stage_x: {ss_stage_x}")
-    logger.info(f"ss_stage_y: {ss_stage_y}")
-
-    # 需要满足四个通信的限制
-    ss_stage1 = astra_topology.find_common_edges(ss_stage_x, ss_stage_y)
-    tree_ss = astra_topology.generate_tree(np.array(ss_stage1), 4)
-    logger.info(f"tree_ss: {tree_ss.tolist()}")
-    ss_stage2 = astra_topology.expand_tree(np.array(ss_stage1), tree_ss)
-    logger.info(f'ss_stage2: {ss_stage2.tolist()}')
-    ss_stage3 = ss_stage2.tolist()
-
-
-# config.Laser_pridiction = 180
-def astra_topology(sats, query_time):
-    ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 27, 12, 00, 2000 + query_time)
-    next_time = ((query_time + config.Laser_pridiction -1) // config.Laser_pridiction ) * config.Laser_pridiction
-    dt2 = ts.utc(2023, 7, 27, 12, 00, 2000 + next_time)
-    ss_stage_x = sats.sat_connectivity(dt)
-    ss_stage_y = sats.sat_connectivity(dt2)
-    logger.info(f"ss_stage_x: {ss_stage_x}")
-    logger.info(f"ss_stage_y: {ss_stage_y}")
-    ss_stage1 = astra_topology.find_common_edges(ss_stage_x, ss_stage_y)
-    tree_ss = astra_topology.generate_tree(np.array(ss_stage1), 4)
-    ss_stage2 = astra_topology.expand_tree(np.array(ss_stage1), tree_ss)
-    ss_stage3 = ss_stage2.tolist()
-    return ss_stage3
-
-
-    
