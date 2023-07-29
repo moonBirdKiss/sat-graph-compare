@@ -4,6 +4,7 @@
 #include "SendPktApp.h"
 #include "ns3/aodv-module.h"
 #include "ns3/applications-module.h"
+#include "ns3/dsdv-helper.h"
 #include "ns3/olsr-helper.h"
 #include "utils.h"
 #include <curl/curl.h>
@@ -19,11 +20,11 @@ using namespace ns3;
 const int NodeNum = 8;
 // const int SimluationTime = 60 * 60 * 2;
 
-const int QueryTime = 600;
-const int TimeInterval = 10;
+const int QueryTime = 60 * 6;
+const int TimeInterval = 30;
 // 480初始是连接的
 // 620 0->1->7会变成 0->7的路线
-const int StartTime = 4200;
+const int StartTime = 20;
 const int SimluationTime = StartTime + QueryTime + 2;
 const int EndtTime = StartTime + QueryTime;
 const int SndAppTime = StartTime - 2;
@@ -42,8 +43,8 @@ int main(int argc, char *argv[])
     // LogComponentEnable("OlsrStaGraph", LOG_LEVEL_ALL);
     // LogComponentEnable("SatLink", LOG_LEVEL_INFO);
     // LogComponentEnable("SatGraph", LOG_LEVEL_INFO);
-    LogComponentEnable("DataReceiver", LOG_LEVEL_INFO);
-    LogComponentEnable("SendPktApp", LOG_LEVEL_ERROR);
+    LogComponentEnable("DataReceiver", LOG_LEVEL_ALL);
+    LogComponentEnable("SendPktApp", LOG_LEVEL_ALL);
     // LogComponentEnable("AodvRoutingProtocol", LOG_LEVEL_FUNCTION);
     LogComponentEnable("Utils", LOG_LEVEL_INFO);
     // LogComponentEnableAll(LOG_LEVEL_INFO);
@@ -162,10 +163,10 @@ int main(int argc, char *argv[])
     // printRoutingTable(Seconds(645), "./test-aodv-645.log", nodes);
     // printRoutingTable(Seconds(655), "./test-aodv-655.log", nodes);
 
-    // for (int i = 0; i < nodes.GetN(); i++)
-    // {
-    //     Simulator::Schedule(Seconds(4385), &PrintNodeDetails, nodes.Get(i));
-    // }
+    for (int i = 0; i < nodes.GetN(); i++)
+    {
+        Simulator::Schedule(Seconds(4385), &PrintNodeDetails, nodes.Get(i));
+    }
     splitLog(SimluationTime);
 
     Simulator::Stop(Seconds(SimluationTime + 1.0));

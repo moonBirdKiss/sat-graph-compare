@@ -125,4 +125,4 @@ def test_certain_subgraph():
 
 
 if __name__ == "__main__":
-    test_certain_subgraph()
+    test_extend()

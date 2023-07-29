@@ -88,7 +88,7 @@ class Constellation:
         sat_conn = self.sat_connection(timestamp)
         gs_conn = self.gs_connectivity(timestamp)
         sum_num = self.size + self.ground_num
-        connection = [[(False, -1, -1) for _ in range(sum_num)]
+        connection = [[[False, -1, -1] for _ in range(sum_num)]
                       for _ in range(sum_num)]
         for i in range(sum_num):
             for j in range(sum_num):
@@ -96,17 +96,17 @@ class Constellation:
                     connection[i][j] = sat_conn[i][j]
                 elif i >= self.size and j >= self.size:
                     if i == j:
-                        connection[i][j] = (False, -1, -1)
+                        connection[i][j] = [False, -1, -1]
                     # ground station can communicate
                     else:
-                        connection[i][j] = (
-                            True, config.Ground_bandwidth, config.Ground_latency)
+                        connection[i][j] = [
+                            True, config.Ground_bandwidth, config.Ground_latency]
                 else:
                     if gs_conn[i][j] == 1:
-                        connection[i][j] = (
-                            True, config.Ground_Sat_bandwidth, config.Ground_Sat_latency)
+                        connection[i][j] = [
+                            True, config.Ground_Sat_bandwidth, config.Ground_Sat_latency]
                     else:
-                        connection[i][j] = (False, -1, -1)
+                        connection[i][j] = [False, -1, -1]
         return connection
 
     def sat_connection(self, timestamp):
@@ -114,15 +114,15 @@ class Constellation:
         #                      [(), (), ()],
         #                      [(), (), ()] ]
         connectivity = self.sat_graph(timestamp)
-        connection = [[(False, -1, -1) for _ in range(self.size)]
+        connection = [[[False, -1, -1] for _ in range(self.size)]
                       for _ in range(self.size)]
         for i in range(self.size):
             for j in range(self.size):
                 if connectivity[i][j] > 0:
-                    connection[i][j] = (True, model.from_dis_to_cbps(
-                        connectivity[i][j] * 1000),  model.from_dis_to_latency(connectivity[i][j] * 1000))
+                    connection[i][j] = [True, model.from_dis_to_cbps(
+                        connectivity[i][j] * 1000),  model.from_dis_to_latency(connectivity[i][j] * 1000)]
                 else:
-                    connection[i][j] = (False, -1, -1)
+                    connection[i][j] = [False, -1, -1]
         return connection
 
     def get_sats(self):
