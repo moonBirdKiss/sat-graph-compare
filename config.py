@@ -25,17 +25,17 @@ iteration_time = 10  # 20 time
 time_scale = 60  # 1min per time
 
 # config the ground station
-Ground_locations = [["Test", [2.85, 57.13]],
-                    ["US (Oregon)", [-120.5542, 45.3238]],
-                    ["US (Ohio)", [-82.7649, 40.4173]],
-                    ["Middle East (Bahrain)", [50.5354, 26.2212]],
-                    ["Europe (Stockholm)", [18.0649, 59.3328]],
-                    ["Asia Pacific (Sydney)", [151.2093, -33.8688]],
-                    ["Europe (Ireland)", [-6.2675, 53.3441]],
-                    ["Africa (Cape Town)", [18.4232, -33.9249]],
-                    ["US (Hawaii)", [-157.8583, 21.3069]],
-                    ["Asia Pacific (Seoul)", [126.9780, 37.5665]],
-                    ["Asia Pacific (Singapore)", [103.8198, 1.3521]]]
+Ground_locations = [
+                    ["US (Oregon)", [45.3238, -120.5542]],
+                    ["US (Ohio)", [40.4173, -82.7649]],
+                    ["Middle East (Bahrain)", [26.2212, 50.5354]],
+                    ["Europe (Stockholm)", [59.3328, 18.0649]],
+                    ["Asia Pacific (Sydney)", [-33.8688, 151.2093]],
+                    ["Europe (Ireland)", [53.3441, -6.2675]],
+                    ["Africa (Cape Town)", [-33.9249, 18.4232]],
+                    ["US (Hawaii)", [21.3069, -157.8583]],
+                    ["Asia Pacific (Seoul)", [37.5665, 126.9780]],
+                    ["Asia Pacific (Singapore)", [1.3521, 103.8198]]]
 
 Ground_bandwidth = 10 * 1000 * 1000 * 1000  # 10Gbps
 Ground_latency = 40  # ms

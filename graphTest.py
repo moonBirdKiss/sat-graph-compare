@@ -155,6 +155,9 @@ def test_is_connect():
 
 if __name__ == "__main__":
     
-    for start_time in range(60,120):
+    for start_time in range(0,120):
         file_name = "./gs_record/sec"+str(start_time)+".txt"
         get_gs_same_link(file_name,start_time=start_time)
+    for start_time in range(0,120):
+        file_name = "./ss_record/sec"+str(start_time)+".txt"
+        get_sat_same_link(file_name,start_time=start_time)
