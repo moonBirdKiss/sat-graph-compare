@@ -270,11 +270,11 @@ def traditional_topology(graph_list, max_degree=4):
     return E.tolist()
 
 
-def astra_topology(graph_list, max_degree=4):
-    graph = np.array(graph_list)
-    T = generate_tree(graph, max_degree)
-    res = expand_tree(graph, T)
-    return res.tolist()
+# def astra_topology(graph_list, max_degree=4):
+#     graph = np.array(graph_list)
+#     T = generate_tree(graph, max_degree)
+#     res = expand_tree(graph, T)
+#     return res.tolist()
 
 def find_common_edges(G1, G2):
     # 转化为numpy矩阵
@@ -319,9 +319,13 @@ def astra_communication(size, query_time):
 # config.Laser_pridiction = 180
 def astra_topology(sats, query_time):
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 27, 12, 00, 2000 + query_time)
+    # 90s, [0, 180] 公共图所创造的网络
     next_time = ((query_time + config.Laser_pridiction -1) // config.Laser_pridiction ) * config.Laser_pridiction
+    last_time = next_time - config.Laser_pridiction
+
+    dt = ts.utc(2023, 7, 27, 12, 00, 2000 + last_time)
     dt2 = ts.utc(2023, 7, 27, 12, 00, 2000 + next_time)
+
     ss_stage_x = sats.sat_connectivity(dt)
     ss_stage_y = sats.sat_connectivity(dt2)
     logger.info(f"ss_stage_x: {ss_stage_x}")
