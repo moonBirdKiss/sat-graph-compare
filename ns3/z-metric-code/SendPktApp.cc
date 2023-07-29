@@ -77,6 +77,11 @@ void SendPktApp::StopApplication(void)
     }
 }
 
+// 3 [0, 3, 6, 9, 12, 15, 18, 21, 24, 27]
+// m_init_time = application.init.now()
+// m_init_time + lt.pop()
+
+// now() - m_init_time - 3
 void SendPktApp::SendPacket(void)
 {
     AppendToFile(Simulator::Now().GetSeconds(), m_packetsSent, m_packetSize, "0-sendPkt.log");
@@ -131,6 +136,7 @@ void SendPktApp::ScheduleTx(void)
 void SendPktApp::ConnectionSucceeded(Ptr<Socket> socket)
 {
     NS_LOG_DEBUG("[SendPktApp::ConnectionSucceeded] at " << Simulator::Now().GetSeconds());
+    // log time
     SendPacket();
 }
 

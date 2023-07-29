@@ -57,14 +57,15 @@ void DataReceiver::ReceivePacket(Ptr<Socket> socket)
             Time tx = timestamp.GetTimestamp();
             // Calculate delay
             Time delay = Simulator::Now() - tx;
-            NS_LOG_DEBUG("[DataReceiver::ReceivePacket]: Delay: " << delay.GetSeconds() << " seconds");
+            NS_LOG_INFO("[DataReceiver::ReceivePacket]: Delay: " << delay.GetSeconds() << " seconds");
 
             // Get the size of the packet
             uint32_t pktSize = packet->GetSize();
             m_totBytes += pktSize;
             NS_LOG_DEBUG("[DataReceiver::ReceivePacket]: Packet size: " << pktSize << " bytes"
                                                                         << ", Total bytes: " << m_totBytes << " bytes");
-            AppendToFile(delay.GetSeconds(), m_totBytes, m_totBytes, "0-recvPkt.log");
+            DataReceiverAppendToFile(Simulator::Now().GetSeconds(), delay.GetSeconds(), m_totBytes, m_totBytes,
+                                     "0-recvPkt.log");
         }
         else
         {

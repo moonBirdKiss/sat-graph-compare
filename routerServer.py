@@ -59,11 +59,32 @@ def gs_communication():
     # 构建constellation，然后返回对应的值
     sats = constellation.new_sats(size)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 20, 12, 20, 30 + query_time)
+    dt = ts.utc(2023, 7, 27, 12, 00, 3480 + query_time)
 
-    tmp = sats.gs_connectivity(dt)
-    logger.info(f"gs-communication: tmp: {tmp}")
+
     res = sats.gs_connection(dt)
+
+    # 需要满足四个通信的限制
+    ss_stage1 = sats.sat_connectivity(dt)
+    tree_ss = astra_topology.generate_tree(np.array(ss_stage1), 4)
+    logger.info(f"tree_ss: {tree_ss.tolist()}")
+    ss_stage2 = astra_topology.expand_tree(np.array(ss_stage1), tree_ss)
+    logger.info(f'ss_stage2: {ss_stage2.tolist()}')
+    ss_stage3 = ss_stage2.tolist()
+    
+    # 顺便再验证一下gs-connectivity吧
+    tmp = sats.gs_connectivity(dt)
+    for i in range(size):
+        for j in range(size):
+            if ss_stage3[i][j] <= 0:
+                tmp[i][j] = 0
+    logger.info(f"gs-communication: tmp: {tmp}")
+    
+    for i in range(size):
+        for j in range(size):
+            if ss_stage3[i][j] <= 0:
+                res[i][j][0] = False 
+
     # logger.info(res)
 
     return jsonify(res)  # 返回数据
@@ -78,9 +99,9 @@ def gs_connectivity():
     logger.debug(f"query_time:{query_time}, size:{size}")
 
     # 构建constellation，然后返回对应的值
-    sats = constellation.new_sats(size, 2)
+    sats = constellation.new_sats(size, 1)
     ts = skyfield.api.load.timescale()
-    dt = ts.utc(2023, 7, 27, 12, 00, 2100 + query_time)
+    dt = ts.utc(2023, 7, 27, 12, 00, 2100 + 420 + query_time)
 
     res = sats.gs_connectivity(dt)
     logger.info(res)
