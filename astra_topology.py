@@ -235,3 +235,42 @@ def index_mapping(shortest_path, mapping):
         for i, node in enumerate(path):
             path[i] = mapping.get(node)
     return shortest_path
+
+
+def traditional_topology(graph_list, max_degree=4):
+    graph = np.array(graph_list)
+    # 创建一个空的邻接矩阵E，-1表示不可达
+    E = -np.ones(graph.shape)
+    
+    # 获取顶点数量
+    vertices_num = len(graph)
+
+    # 初始化每个顶点的度为0
+    degree = [0]*vertices_num
+
+    # 获得边和对应的权重
+    edges = []
+    for i in range(vertices_num):
+        for j in range(i+1, vertices_num):
+            if graph[i, j] >= 0:
+                edges.append(((i, j), graph[i, j]))
+    
+    # 按照权重对边进行排序
+    edges.sort(key=lambda x: x[1])
+    
+    for edge, _ in edges:
+        u, v = edge
+        # 检查添加边后顶点的度是否超过4
+        if degree[u] < 4 and degree[v] < 4:
+            E[u, v] = E[v, u] = graph[u, v]
+            degree[u] += 1
+            degree[v] += 1
+    
+    return E.tolist()
+
+
+def astra_topology(graph_list, max_degree=4):
+    graph = np.array(graph_list)
+    T = generate_tree(graph, max_degree)
+    res = expand_tree(graph, T)
+    return res.tolist()

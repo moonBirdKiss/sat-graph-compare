@@ -10,8 +10,8 @@ logger.remove()
 # )
 
 # 这是用来模拟最好的时间
-ts = skyfield.api.Timescale()
-dt = ts.utc(2023, 7, 27, 12, 00, 2100)
+# ts = skyfield.api.Timescale()
+# dt = ts.utc(2023, 7, 27, 12, 00, 2100)
 
 logger.add(sys.stdout, level='INFO')
 

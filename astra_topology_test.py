@@ -124,5 +124,12 @@ def test_certain_subgraph():
     plt.show()
 
 
+
+def test_traditional_topolog():
+    G = generate_complete_graph(30)
+    T = traditional_topology(G.tolist())
+    plot.visulizeGraph(T)
+
+
 if __name__ == "__main__":
-    test_certain_subgraph()
+    test_traditional_topolog()
