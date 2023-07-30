@@ -57,3 +57,5 @@ NodeList = [
     "edge-0", "edge-1", "edge-2", "edge-3", "edge-4", "edge-5", "edge-6",
     "master"
 ]
+
+Laser_pridiction = 180

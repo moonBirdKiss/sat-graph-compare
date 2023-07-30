@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 from config import logger
+from graphSimilarity import is_connected
 import plot
 import config
 import constellation
@@ -8,31 +9,31 @@ import skyfield.api
 
 def get_connected_subgraph_adj_matrices(adj_matrix):
     # 这个函数也有用，用来做最初的状态
-    G = nx.from_numpy_matrix(adj_matrix)
+    G = nx.from_numpy_array(adj_matrix)
     subgraphs = nx.connected_components(G)
 
     subgraph_adj_matrices = [
-        nx.to_numpy_matrix(G.subgraph(subgraph)) for subgraph in subgraphs
+        nx.to_numpy_array(G.subgraph(subgraph)) for subgraph in subgraphs
     ]
     return subgraph_adj_matrices
 
 
 def get_minimum_spanning_tree(adj_matrix):
     # 创建一个图
-    G = nx.from_numpy_matrix(adj_matrix)
+    G = nx.from_numpy_array(adj_matrix)
 
     # 计算最小生成树
     mst = nx.minimum_spanning_tree(G)
 
     # 将最小生成树转换为邻接矩阵
-    mst_adj_matrix = nx.to_numpy_matrix(mst)
+    mst_adj_matrix = nx.to_numpy_array(mst)
 
     return mst_adj_matrix
 
 
 def find_max_degree_node(adj_matrix):
     # 创建一个图
-    G = nx.from_numpy_matrix(adj_matrix)
+    G = nx.from_numpy_array(adj_matrix)
 
     # 找到度最大的节点
     max_degree_node = max(G, key=G.degree)
@@ -43,7 +44,7 @@ def find_max_degree_node(adj_matrix):
 def get_max_degree_node(adj_matrix):
     # 获得度最大的节点
     # 但是上面的方法更加优雅
-    G = nx.from_numpy_matrix(adj_matrix)
+    G = nx.from_numpy_array(adj_matrix)
     degrees = [val for (node, val) in G.degree()]
     max_degree = max(degrees)
     for node, degree in G.degree():
@@ -53,12 +54,12 @@ def get_max_degree_node(adj_matrix):
 
 def generate_complete_graph(nodenum):
     G = nx.complete_graph(nodenum)
-    return nx.to_numpy_matrix(G)
+    return nx.to_numpy_array(G)
 
 
 def generate_tree(graph_matrix, max_degree=4):
 
-    G = nx.from_numpy_matrix(graph_matrix)  # 从矩阵创建图G
+    G = nx.from_numpy_array(graph_matrix)  # 从矩阵创建图G
     T = nx.minimum_spanning_tree(G)  # 求最小生成树T
     over_nodes = [n for n in T.nodes() if T.degree(n) > max_degree]  # 找到超度节点
     logger.debug(f"the over_nodes is {over_nodes}")
@@ -73,7 +74,7 @@ def generate_tree(graph_matrix, max_degree=4):
         flag = False
 
         for u in neighbors:
-            # plot.visulizeGraph(nx.to_numpy_matrix(T).tolist())
+            # plot.visulizeGraph(nx.to_numpy_array(T).tolist())
             logger.debug(f" remove edge {(u, v)}")
 
             T.remove_edge(u, v)  # 删除一条连接边
@@ -85,7 +86,7 @@ def generate_tree(graph_matrix, max_degree=4):
                 # 尝试添加边,检查是否符合要求
                 T.add_edge(*e)
 
-                # plot.visulizeGraph(nx.to_numpy_matrix(T).tolist())
+                # plot.visulizeGraph(nx.to_numpy_array(T).tolist())
                 new_over_nodes = [
                     n for n in T.nodes() if T.degree(n) > max_degree]
 
@@ -113,7 +114,7 @@ def generate_tree(graph_matrix, max_degree=4):
         over_nodes = [n for n in T.nodes()
                       if T.degree(n) > max_degree]  # 更新超度节点列表
 
-    return nx.to_numpy_matrix(T)  # 返回结果矩阵
+    return nx.to_numpy_array(T)  # 返回结果矩阵
 
 
 def overflow_degree(G, over_nodes, max_degree):
@@ -125,8 +126,8 @@ def overflow_degree(G, over_nodes, max_degree):
 
 def expand_tree(graph_matrix, tree_matrix):
     # 将邻接矩阵转换为图
-    G_graph = nx.from_numpy_matrix(np.array(graph_matrix))
-    T_graph = nx.from_numpy_matrix(np.array(tree_matrix))
+    G_graph = nx.from_numpy_array(np.array(graph_matrix))
+    T_graph = nx.from_numpy_array(np.array(tree_matrix))
 
     # 计算G-T得到的边集合E
     E = list(set(G_graph.edges()).difference(set(T_graph.edges())))
@@ -138,7 +139,7 @@ def expand_tree(graph_matrix, tree_matrix):
         if T_graph.degree(edge[0]) < 4 and T_graph.degree(edge[1]) < 4:
             T_graph.add_edge(*edge)
 
-    return nx.to_numpy_matrix(T_graph)
+    return nx.to_numpy_array(T_graph)
 
 
 def astra_topology(adj_matrix, max_degree=4):
@@ -184,7 +185,7 @@ def from_index_to_dic(shortest_path):
 
 def get_subgraphs(G):
     # 这个函数暂时先不要用，留在这里仅仅为了有一些有用的 snippets
-    G = nx.from_numpy_matrix(G)
+    G = nx.from_numpy_array(G)
     # 找到图中所有连通组件的节点列表
     components = list(nx.connected_components(G))
     # 初始化一个空列表来存储子图邻接矩阵和节点映射
@@ -195,7 +196,7 @@ def get_subgraphs(G):
         # 提取子图
         subgraph = G.subgraph(component)
         # 转换为邻接矩阵并存储
-        adj_matrix = nx.to_numpy_matrix(subgraph).tolist()
+        adj_matrix = nx.to_numpy_array(subgraph).tolist()
         subgraphs_adj_matrix.append(adj_matrix)
         # 将节点映射存储为一个字典，其中原始图中的节点索引是键，子图中的新索引是值
         mapping = {node: i for i, node in enumerate(component)}
@@ -205,7 +206,7 @@ def get_subgraphs(G):
 
 def get_certain_subgraph(index, G):
     # 这个函数用来获得指定index所在的子图，以及返回子图和原图之间的mapping关系
-    G = nx.from_numpy_matrix(G)
+    G = nx.from_numpy_array(G)
     # 找到图中所有连通组件的节点列表
     components = list(nx.connected_components(G))
 
@@ -216,7 +217,7 @@ def get_certain_subgraph(index, G):
         # 提取子图
         subgraph = G.subgraph(component)
         # 转换为邻接矩阵并存储
-        adj_matrix = nx.to_numpy_matrix(subgraph).tolist()
+        adj_matrix = nx.to_numpy_array(subgraph).tolist()
         # 将节点映射存储为一个字典，其中原始图中的节点索引是键，子图中的新索引是值
         mapp_from_sub_to_original = {
             node: i for node, i in enumerate(component)
@@ -238,7 +239,7 @@ def index_mapping(shortest_path, mapping):
     return shortest_path
 
 
-def traditional_topology(graph_list, max_degree=4):
+def traditional_topology_tool(graph_list, max_degree=4):
     graph = np.array(graph_list)
     # 创建一个空的邻接矩阵E，-1表示不可达
     E = -np.ones(graph.shape)
@@ -267,7 +268,16 @@ def traditional_topology(graph_list, max_degree=4):
             degree[u] += 1
             degree[v] += 1
     
-    return E.tolist()
+    return E
+
+def traditional_topology(sats, query_time):
+    ts = skyfield.api.load.timescale()
+    dt = ts.utc(2023, 7, 27, 12, 00, 2000 + query_time)
+    
+    sat_graph = sats.sat_connectivity(dt)
+    E = traditional_topology_tool(sat_graph)
+    return E
+    
 
 
 # def astra_topology(graph_list, max_degree=4):
@@ -330,11 +340,88 @@ def astra_topology(sats, query_time):
     ss_stage_y = sats.sat_connectivity(dt2)
     logger.info(f"ss_stage_x: {ss_stage_x}")
     logger.info(f"ss_stage_y: {ss_stage_y}")
-    ss_stage1 = astra_topology.find_common_edges(ss_stage_x, ss_stage_y)
-    tree_ss = astra_topology.generate_tree(np.array(ss_stage1), 4)
-    ss_stage2 = astra_topology.expand_tree(np.array(ss_stage1), tree_ss)
-    ss_stage3 = ss_stage2.tolist()
+    ss_stage1 = find_common_edges(ss_stage_x, ss_stage_y)
+    tree_ss = generate_tree(np.array(ss_stage1), 4)
+    ss_stage2 = expand_tree(np.array(ss_stage1), tree_ss)
+    ss_stage3 = np.array(ss_stage2.tolist())
     return ss_stage3
 
+if __name__ == "__main__":
 
+    astra_topo_change_file = "./topo_record/astra_topo_change.log"
+    astra_topo_is_connected_file = "./topo_record/astra_topo_is_connected.log"
+    change_file = open(astra_topo_change_file,"w")
+    connected_file = open(astra_topo_is_connected_file,"w")
+    
+    duration = 24 * 60 * 60
+    cons = constellation.new_sats(50,0)
+    
+    g1 = astra_topology(cons,0)
+    ifconnected = is_connected(g1)
+    connected_file.write("Query time: 0\n")
+    connected_file.write(str(ifconnected)+"\n")
+    
+    query_time = 30
+    while query_time <= duration:
+        g2 = astra_topology(cons,query_time)
+        ifconnected = is_connected(g2)
+        connected_file.write("Query time: "+str(query_time)+"\n")
+        connected_file.write(str(ifconnected)+"\n")
+        
+        # 计算两个矩阵的差异
+        difference = np.abs(g2 - g1)
+        # 计算差异矩阵中所有非零元素的数量，即边的变化数量
+        change_count = np.count_nonzero(difference)
+        # 因为是无向图，所以返回值除以2
+        change_count //= 2
+        
+        change_file.write("Query time: "+str(query_time)+"\n")
+        change_file.write(str(change_count)+"\n")
+        
+        g1 = g2
+        query_time += 30
+    
+    change_file.close()
+    connected_file.close()
+    ########################################################################
+    tradition_topo_change_file = "./topo_record/traditional_topo_change.log"
+    tradition_topo_is_connected_file = "./topo_record/traditional_topo_is_connected.log"
+    change_file = open(tradition_topo_change_file,"w")
+    connected_file = open(tradition_topo_is_connected_file,"w")
+    
+    g1 = traditional_topology(cons,0)
+    ifconnected = is_connected(g1)
+    connected_file.write("Query time: 0\n")
+    connected_file.write(str(ifconnected)+"\n")
+    
+    query_time = 30
+    while query_time <= duration:
+        g2 = traditional_topology(cons,query_time)
+        ifconnected = is_connected(g2)
+        connected_file.write("Query time: "+str(query_time)+"\n")
+        connected_file.write(str(ifconnected)+"\n")
+        
+        # 计算两个矩阵的差异
+        difference = np.abs(g2 - g1)
+        # 计算差异矩阵中所有非零元素的数量，即边的变化数量
+        change_count = np.count_nonzero(difference)
+        # 因为是无向图，所以返回值除以2
+        change_count //= 2
+        
+        change_file.write("Query time: "+str(query_time)+"\n")
+        change_file.write(str(change_count)+"\n")
+        
+        g1 = g2
+        query_time += 30
+    
+    change_file.close()
+    connected_file.close()
+    
+    
+    
+        
+        
+        
+    
+    
     

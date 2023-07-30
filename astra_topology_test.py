@@ -82,7 +82,7 @@ def test_sub_mapp():
 
     # 获取子图
     subgraphs_adj_matrix, subgraphs_mapping = get_subgraphs(
-        nx.to_numpy_matrix(G))
+        nx.to_numpy_array(G))
 
     # 画出子图
     for i, (adj_matrix, mapping) in enumerate(zip(subgraphs_adj_matrix, subgraphs_mapping)):
@@ -107,7 +107,7 @@ def test_certain_subgraph():
 
     # 获取子图
     adj_matrix, map_from_new_to_old, map_from_old_to_new = get_certain_subgraph(
-        12, nx.to_numpy_matrix(G))
+        12, nx.to_numpy_array(G))
     subgraph = nx.from_numpy_array(np.array(adj_matrix))
 
     # 画出子图
