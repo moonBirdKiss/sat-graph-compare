@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 import matplotlib.ticker as ticker
 font = FontProperties(fname=r"./font/times.ttf", size=20)
-legendfont = FontProperties(fname=r"./font/times.ttf", size=18)
+legendfont = FontProperties(fname=r"./font/times.ttf", size=16)
 
 gs_record = []
 for i in range(0,120):
@@ -60,28 +60,28 @@ CX = range(2,31)
 delta_symbol = '\u0394'
 xticks = [0,5,10,15,20,25,30]
 
-plt.figure(figsize=(200, 120))
+plt.figure(figsize=(10, 8))
 plt.subplot(2, 1, 1)
 #plt.xlabel(delta_symbol+'T(min)',fontproperties=font)
 plt.ylabel('Edges Number',fontproperties=font)
-plt.xticks(fontsize=16)
+plt.xticks(fontsize=12)
 plt.xlim(0,30)
-plt.yticks(fontsize=16)
+plt.yticks(fontsize=12)
 plt.ylim(300,700)
 plt.locator_params(axis='y', nbins=5)
-plt.plot(X, gsY, label='GS', linestyle='--', color='#4292c6', marker = 'o', markersize = 8, markevery = 3)
-plt.plot(X, ssY, label='SS', linestyle='-', color='#807dba', marker = 'v', markersize = 8, markevery = 3)
-plt.legend(prop=legendfont)
+plt.plot(X, gsY, label='GS', linestyle='--', color='#4292c6', marker = 'o', markersize = 5, markevery = 3)
+plt.plot(X, ssY, label='SS', linestyle='-', color='#807dba', marker = 'v', markersize = 5, markevery = 3)
+plt.legend(prop=legendfont,loc=1)
 
 plt.subplot(2, 1, 2)
 plt.xlabel(delta_symbol+'T(min)',fontproperties=font)
-plt.ylabel('Edges Change Number',fontproperties=font)
-plt.xticks(fontsize=16)
+plt.ylabel('Edges Number Change',fontproperties=font)
+plt.xticks(fontsize=12)
 plt.xlim(0,30)
-plt.yticks(fontsize=16)
+plt.yticks(fontsize=12)
 plt.ylim(0,300)
-plt.plot(CX, gsCY, label='GS', linestyle='--', color='#4292c6', marker = 'o', markersize = 8, markevery = 3)
-plt.plot(CX, ssCY, label='SS', linestyle='-', color='#807dba', marker = 'v', markersize = 8, markevery = 3)
-plt.legend(prop=legendfont)
+plt.plot(CX, gsCY, label='GS', linestyle='--', color='#4292c6', marker = 'o', markersize = 5, markevery = 3)
+plt.plot(CX, ssCY, label='SS', linestyle='-', color='#807dba', marker = 'v', markersize = 5, markevery = 3)
+plt.legend(prop=legendfont,loc=4)
 
 plt.show()
