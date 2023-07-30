@@ -4,7 +4,7 @@ import statsmodels.api as sm
 import numpy as np
 
 font = FontProperties(fname=r"./font/times.ttf", size=20)
-legendfont = FontProperties(fname=r"./font/times.ttf", size=18)
+legendfont = FontProperties(fname=r"./font/times.ttf", size=16)
 
 astra_file = "./topo_record/astra_topo_change.log"
 traditional_file = "./topo_record/traditional_topo_change.log"
@@ -45,14 +45,14 @@ astra_Y = astra_Y_ecdf(X)
 traditional_Y_ecdf = sm.distributions.ECDF(traditional_Y)
 traditional_Y = traditional_Y_ecdf(X)
 
-plt.figure(figsize=(6,5))
+plt.figure(figsize=(8,5))
 plt.xlabel('Topology Change',fontproperties=font)
 plt.ylabel('CDF',fontproperties=font)
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 
-plt.plot(X, traditional_Y, label='traditional', linestyle='--', color='#4292c6', marker = 'o', markersize = 8, markevery = 10, linewidth=2)
-plt.plot(X, astra_Y, label='astra', linestyle='-', color='#807dba', marker = 'v', markersize = 8, markevery = 10, linewidth=2)
+plt.plot(X, traditional_Y, label='traditional', linestyle='--', color='#4292c6', marker = 'o', markersize = 5, markevery = 10)
+plt.plot(X, astra_Y, label='astra', linestyle='-', color='#807dba', marker = 'v', markersize = 5, markevery = 10)
 plt.legend(prop=legendfont,loc=4)
 
 plt.show()
